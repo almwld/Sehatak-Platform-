@@ -27,8 +27,6 @@ dependencies:
   google_sign_in: ^6.2.1
 
   # مكالمات الفيديو والصوت - Agora
-  agora_rtc_engine: ^6.3.0
-  callwave_flutter: ^0.5.0
   permission_handler: ^11.1.0
 
   # الدردشة المحسنة
@@ -38,7 +36,6 @@ dependencies:
   file_picker: ^6.1.1
 
   # 💳 الدفع - Stripe فقط (تم إزالة pay و payment)
-  flutter_stripe: ^10.0.0
 
   # UI & Design
   flutter_svg: ^2.0.9
