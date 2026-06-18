@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/services/firebase_service.dart';
 
 // Events
@@ -11,7 +12,6 @@ class LoginRequested extends AuthEvent {
   final String email;
   final String password;
   final bool isDoctor;
-
   LoginRequested({
     required this.email,
     required this.password,
@@ -24,7 +24,6 @@ class RegisterRequested extends AuthEvent {
   final String password;
   final String name;
   final bool isDoctor;
-
   RegisterRequested({
     required this.email,
     required this.password,
@@ -77,10 +76,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAppStarted(AppStarted event, Emitter<AuthState> emit) {
-    final user = _firebaseService.currentUser;
-    if (user != null) {
-      emit(AuthAuthenticated(user));
-    } else {
+    // ✅ التحقق من المستخدم الحالي (إذا كان Firebase جاهزاً)
+    try {
+      final user = _firebaseService.currentUser;
+      if (user != null) {
+        emit(AuthAuthenticated(user));
+      } else {
+        emit(AuthUnauthenticated());
+      }
+    } catch (e) {
+      // ✅ إذا لم يكن Firebase جاهزاً، نعتبر المستخدم غير مسجل
       emit(AuthUnauthenticated());
     }
   }
@@ -107,11 +112,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         event.email,
         event.password,
       );
-      
-      // تحديث اسم المستخدم
+
       await credential.user?.updateDisplayName(event.name);
-      
-      // حفظ بيانات المستخدم في Firestore
+
       await FirebaseService().firestore.collection('users').doc(credential.user!.uid).set({
         'name': event.name,
         'email': event.email,
