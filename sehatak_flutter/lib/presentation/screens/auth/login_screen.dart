@@ -1,3 +1,4 @@
+import '../home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/auth_bloc/auth_bloc.dart';
@@ -24,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
           }
           if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
