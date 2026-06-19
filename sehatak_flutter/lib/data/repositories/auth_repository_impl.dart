@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../../domain/repositories/auth_repository.dart';
 import '../../core/exceptions/failure.dart';
 import '../../core/services/firebase/firebase_service.dart';
@@ -9,53 +9,53 @@ class AuthRepositoryImpl implements AuthRepository {
   final FirebaseService _firebaseService = sl<FirebaseService>();
 
   @override
-  Future<Either<Failure, User>> login(String email, String password) async {
+  Future<Either<Failure, AppUser>> login(String email, String password) async {
     try {
       final userCredential = await _firebaseService.auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       
-      final user = userCredential.user;
-      if (user != null) {
-        return Right(User(
-          id: user.uid,
-          email: user.email ?? '',
-          name: user.displayName ?? 'مستخدم',
+      final firebaseUser = userCredential.user;
+      if (firebaseUser != null) {
+        return Either.right(AppUser(
+          id: firebaseUser.uid,
+          email: firebaseUser.email ?? '',
+          name: firebaseUser.displayName ?? 'مستخدم',
         ));
       } else {
-        return Left(Failure('فشل تسجيل الدخول'));
+        return Either.left(const Failure('فشل تسجيل الدخول'));
       }
-    } on FirebaseAuthException catch (e) {
-      return Left(Failure(_getAuthErrorMessage(e.code)));
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      return Either.left(Failure(_getAuthErrorMessage(e.code)));
     } catch (e) {
-      return Left(Failure('حدث خطأ غير متوقع'));
+      return Either.left(const Failure('حدث خطأ غير متوقع'));
     }
   }
 
   @override
-  Future<Either<Failure, User>> register(String email, String password, String name) async {
+  Future<Either<Failure, AppUser>> register(String email, String password, String name) async {
     try {
       final userCredential = await _firebaseService.auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       
-      final user = userCredential.user;
-      if (user != null) {
-        await user.updateDisplayName(name);
-        return Right(User(
-          id: user.uid,
-          email: user.email ?? '',
+      final firebaseUser = userCredential.user;
+      if (firebaseUser != null) {
+        await firebaseUser.updateDisplayName(name);
+        return Either.right(AppUser(
+          id: firebaseUser.uid,
+          email: firebaseUser.email ?? '',
           name: name,
         ));
       } else {
-        return Left(Failure('فشل إنشاء الحساب'));
+        return Either.left(const Failure('فشل إنشاء الحساب'));
       }
-    } on FirebaseAuthException catch (e) {
-      return Left(Failure(_getAuthErrorMessage(e.code)));
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      return Either.left(Failure(_getAuthErrorMessage(e.code)));
     } catch (e) {
-      return Left(Failure('حدث خطأ غير متوقع'));
+      return Either.left(const Failure('حدث خطأ غير متوقع'));
     }
   }
 
@@ -65,13 +65,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User?> getCurrentUser() async {
-    final user = _firebaseService.auth.currentUser;
-    if (user != null) {
-      return User(
-        id: user.uid,
-        email: user.email ?? '',
-        name: user.displayName ?? 'مستخدم',
+  Future<AppUser?> getCurrentUser() async {
+    final firebaseUser = _firebaseService.auth.currentUser;
+    if (firebaseUser != null) {
+      return AppUser(
+        id: firebaseUser.uid,
+        email: firebaseUser.email ?? '',
+        name: firebaseUser.displayName ?? 'مستخدم',
       );
     }
     return null;

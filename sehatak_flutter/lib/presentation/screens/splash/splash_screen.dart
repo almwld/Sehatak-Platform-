@@ -19,29 +19,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
-    
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack),
     );
-    
     _animationController.forward();
-    
-    // الانتقال إلى الشاشة الرئيسية بعد 3 ثوانٍ
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     });
   }
@@ -56,9 +47,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
         child: Center(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -67,7 +56,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // شعار التطبيق
                   Container(
                     width: 120,
                     height: 120,
@@ -75,14 +63,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       color: Colors.white.withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.health_and_safety,
-                      size: 70,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.health_and_safety, size: 70, color: Colors.white),
                   ),
                   const SizedBox(height: 30),
-                  // اسم التطبيق
                   const Text(
                     'صحتك',
                     style: TextStyle(
@@ -95,26 +78,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   const SizedBox(height: 10),
                   const Text(
                     'Sehatak',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white70,
-                      fontFamily: 'Cairo',
-                    ),
+                    style: TextStyle(fontSize: 18, color: Colors.white70, fontFamily: 'Cairo'),
                   ),
                   const SizedBox(height: 50),
-                  // مؤشر التحميل
-                  const CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
+                  const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                   const SizedBox(height: 20),
                   const Text(
                     'الرعاية الصحية اليمنية الشاملة',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
-                      fontFamily: 'Cairo',
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.white70, fontFamily: 'Cairo'),
                   ),
                 ],
               ),

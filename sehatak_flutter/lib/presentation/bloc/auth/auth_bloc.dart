@@ -3,84 +3,50 @@ import 'package:equatable/equatable.dart';
 import '../../../domain/usecases/auth/login_usecase.dart';
 import '../../../domain/usecases/auth/register_usecase.dart';
 import '../../../domain/usecases/auth/logout_usecase.dart';
+import '../../../domain/repositories/auth_repository.dart';
 
-// ==============================================
-// 📦 States
-// ==============================================
 abstract class AuthState extends Equatable {
   const AuthState();
-  
-  @override
-  List<Object?> get props => [];
+  @override List<Object?> get props => [];
 }
 
 class AuthInitial extends AuthState {}
-
 class AuthLoading extends AuthState {}
-
 class AuthAuthenticated extends AuthState {
-  final String userId;
-  final String email;
-  
-  const AuthAuthenticated({required this.userId, required this.email});
-  
-  @override
-  List<Object?> get props => [userId, email];
+  final AppUser user;
+  const AuthAuthenticated(this.user);
+  @override List<Object?> get props => [user];
 }
-
 class AuthUnauthenticated extends AuthState {}
-
 class AuthError extends AuthState {
   final String message;
-  
   const AuthError(this.message);
-  
-  @override
-  List<Object?> get props => [message];
+  @override List<Object?> get props => [message];
 }
 
-// ==============================================
-// 📦 Events
-// ==============================================
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
-  
-  @override
-  List<Object?> get props => [];
+  @override List<Object?> get props => [];
 }
 
 class LoginEvent extends AuthEvent {
   final String email;
   final String password;
-  
   const LoginEvent({required this.email, required this.password});
-  
-  @override
-  List<Object?> get props => [email, password];
+  @override List<Object?> get props => [email, password];
 }
 
 class RegisterEvent extends AuthEvent {
   final String email;
   final String password;
   final String name;
-  
-  const RegisterEvent({
-    required this.email,
-    required this.password,
-    required this.name,
-  });
-  
-  @override
-  List<Object?> get props => [email, password, name];
+  const RegisterEvent({required this.email, required this.password, required this.name});
+  @override List<Object?> get props => [email, password, name];
 }
 
 class LogoutEvent extends AuthEvent {}
-
 class CheckAuthStatusEvent extends AuthEvent {}
 
-// ==============================================
-// 🧠 Bloc
-// ==============================================
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase _loginUseCase;
   final RegisterUseCase _registerUseCase;
@@ -102,17 +68,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    final result = await _loginUseCase.execute(
-      email: event.email,
-      password: event.password,
-    );
-    
+    final result = await _loginUseCase.execute(email: event.email, password: event.password);
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (user) => emit(AuthAuthenticated(
-        userId: user.id,
-        email: user.email,
-      )),
+      (user) => emit(AuthAuthenticated(user)),
     );
   }
   
@@ -123,13 +82,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       password: event.password,
       name: event.name,
     );
-    
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (user) => emit(AuthAuthenticated(
-        userId: user.id,
-        email: user.email,
-      )),
+      (user) => emit(AuthAuthenticated(user)),
     );
   }
   
@@ -139,11 +94,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthUnauthenticated());
   }
   
-  Future<void> _onCheckAuthStatus(
-    CheckAuthStatusEvent event,
-    Emitter<AuthState> emit,
-  ) async {
-    // التحقق من حالة المصادقة
-    // ...
-  }
+  Future<void> _onCheckAuthStatus(CheckAuthStatusEvent event, Emitter<AuthState> emit) async {}
 }

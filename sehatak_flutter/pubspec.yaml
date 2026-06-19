@@ -117,3 +117,6 @@ flutter:
         - asset: assets/fonts/Rubik-Regular.ttf
         - asset: assets/fonts/Rubik-Bold.ttf
           weight: 700
+
+  # معالجة الأخطاء البرمجية
+  dartz: ^0.10.1

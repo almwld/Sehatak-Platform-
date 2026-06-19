@@ -7,7 +7,7 @@ abstract class FirebaseService {
   FirebaseAuth get auth;
   FirebaseFirestore get firestore;
   FirebaseStorage get storage;
-  User? get currentUser;
+  firebase_auth.User? get currentUser;
 }
 
 class FirebaseServiceImpl implements FirebaseService {
@@ -37,5 +37,5 @@ class FirebaseServiceImpl implements FirebaseService {
   FirebaseStorage get storage => _storage;
 
   @override
-  User? get currentUser => _auth.currentUser;
+  firebase_auth.User? get currentUser => _auth.currentUser;
 }

@@ -18,7 +18,6 @@ class NetworkServiceImpl implements NetworkService {
     
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        // إضافة header للتطبيق
         options.headers['X-App-Version'] = '2.0.0';
         options.headers['X-Platform'] = 'flutter';
         return handler.next(options);
