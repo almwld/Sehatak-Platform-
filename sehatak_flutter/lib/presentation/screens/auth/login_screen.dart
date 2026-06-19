@@ -1,10 +1,7 @@
-import '../home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../../core/constants/app_colors.dart';
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
+import '../../bloc/auth/auth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,10 +11,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-  bool _isDoctor = false;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-          }
-          if (state is AuthError) {
+            // الانتقال إلى الشاشة الرئيسية
+            Navigator.pushReplacementNamed(context, '/home');
+          } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -37,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         },
         builder: (context, state) {
-          final isLoading = state is AuthLoading;
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -45,234 +47,173 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 40),
+                  
+                  // ==============================================
+                  // 🏷️ العنوان
+                  // ==============================================
                   const Text(
                     'مرحباً بك!',
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                      fontFamily: 'Cairo',
                     ),
                   ),
                   const SizedBox(height: 8),
+                  Text(
+                    'سجل الدخول إلى حسابك',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  
+                  // ==============================================
+                  // 📧 حقل البريد الإلكتروني
+                  // ==============================================
                   const Text(
-                    'سجل دخولك للاستفادة من جميع الخدمات',
+                    'البريد الإلكتروني',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.darkGrey,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Cairo',
                     ),
                   ),
-                  const SizedBox(height: 32),
-                  _buildToggleButtons(),
-                  const SizedBox(height: 24),
-                  _buildEmailField(),
-                  const SizedBox(height: 16),
-                  _buildPasswordField(),
                   const SizedBox(height: 8),
-                  _buildForgotPassword(),
-                  const SizedBox(height: 24),
-                  _buildLoginButton(isLoading),
-                  const SizedBox(height: 16),
-                  _buildRegisterRow(),
+                  TextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      hintText: 'example@email.com',
+                      prefixIcon: const Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                    ),
+                  ),
                   const SizedBox(height: 20),
+                  
+                  // ==============================================
+                  // 🔒 حقل كلمة المرور
+                  // ==============================================
+                  const Text(
+                    'كلمة المرور',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: !_isPasswordVisible,
+                    decoration: InputDecoration(
+                      hintText: '••••••••',
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // ==============================================
+                  // 🔗 نسيت كلمة المرور
+                  // ==============================================
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        'نسيت كلمة المرور؟',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // ==============================================
+                  // 🚀 زر تسجيل الدخول
+                  // ==============================================
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: state is AuthLoading
+                          ? null
+                          : () {
+                              context.read<AuthBloc>().add(
+                                    LoginEvent(
+                                      email: _emailController.text,
+                                      password: _passwordController.text,
+                                    ),
+                                  );
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: state is AuthLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'تسجيل الدخول',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Cairo',
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // ==============================================
+                  // 📝 رابط إنشاء حساب
+                  // ==============================================
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'ليس لديك حساب؟',
+                        style: TextStyle(fontFamily: 'Cairo'),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'إنشاء حساب',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Cairo',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildToggleButtons() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _isDoctor = false),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: !_isDoctor ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.person,
-                      color: !_isDoctor ? AppColors.white : AppColors.darkGrey,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'مريض',
-                      style: TextStyle(
-                        color: !_isDoctor ? AppColors.white : AppColors.darkGrey,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _isDoctor = true),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: _isDoctor ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.medical_services,
-                      color: _isDoctor ? AppColors.white : AppColors.darkGrey,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'طبيب',
-                      style: TextStyle(
-                        color: _isDoctor ? AppColors.white : AppColors.darkGrey,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    return TextField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      decoration: const InputDecoration(
-        labelText: 'البريد الإلكتروني',
-        prefixIcon: Icon(Icons.email, color: AppColors.primary),
-        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-      ),
-      textDirection: TextDirection.rtl,
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextField(
-      controller: _passwordController,
-      obscureText: _obscurePassword,
-      decoration: InputDecoration(
-        labelText: 'كلمة المرور',
-        prefixIcon: const Icon(Icons.lock, color: AppColors.primary),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword ? Icons.visibility : Icons.visibility_off,
-            color: AppColors.grey,
-          ),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-        ),
-        border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-      ),
-      textDirection: TextDirection.rtl,
-    );
-  }
-
-  Widget _buildForgotPassword() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-        ),
-        child: const Text(
-          'نسيت كلمة المرور؟',
-          style: TextStyle(color: AppColors.primary),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginButton(bool isLoading) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : _login,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: isLoading
-            ? const CircularProgressIndicator(color: AppColors.white)
-            : const Text(
-                'تسجيل الدخول',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildRegisterRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'ليس لديك حساب؟',
-          style: TextStyle(color: AppColors.darkGrey),
-        ),
-        TextButton(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const RegisterScreen()),
-          ),
-          child: const Text(
-            'إنشاء حساب',
-            style: TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _login() {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى ملء جميع الحقول'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-
-    context.read<AuthBloc>().add(
-      LoginRequested(
-        email: email,
-        password: password,
-        isDoctor: _isDoctor,
       ),
     );
   }

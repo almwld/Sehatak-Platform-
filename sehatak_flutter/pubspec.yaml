@@ -103,3 +103,17 @@ flutter:
         - asset: assets/fonts/Tajawal-Regular.ttf
         - asset: assets/fonts/Tajawal-Bold.ttf
           weight: 700
+
+  # حقن التبعيات
+  get_it: ^7.6.4
+  injectable: ^2.3.0
+  
+  # معالجة الأخطاء
+  dio: ^5.4.0
+  retrofit: ^4.0.1
+  logger: ^2.0.2+1
+
+dev_dependencies:
+  build_runner: ^2.4.7
+  injectable_generator: ^2.4.1
+  retrofit_generator: ^7.0.8
