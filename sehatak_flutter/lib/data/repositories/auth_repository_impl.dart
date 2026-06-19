@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../core/exceptions/failure.dart';
 import '../../core/services/firebase/firebase_service.dart';
@@ -18,18 +18,19 @@ class AuthRepositoryImpl implements AuthRepository {
       
       final firebaseUser = userCredential.user;
       if (firebaseUser != null) {
-        return Either.right(AppUser(
+        // ✅ استخدام Right مباشرة من dartz
+        return Right(AppUser(
           id: firebaseUser.uid,
           email: firebaseUser.email ?? '',
           name: firebaseUser.displayName ?? 'مستخدم',
         ));
       } else {
-        return Either.left(const Failure('فشل تسجيل الدخول'));
+        return Left(const Failure('فشل تسجيل الدخول'));
       }
-    } on firebase_auth.FirebaseAuthException catch (e) {
-      return Either.left(Failure(_getAuthErrorMessage(e.code)));
+    } on FirebaseAuthException catch (e) {
+      return Left(Failure(_getAuthErrorMessage(e.code)));
     } catch (e) {
-      return Either.left(const Failure('حدث خطأ غير متوقع'));
+      return Left(const Failure('حدث خطأ غير متوقع'));
     }
   }
 
@@ -44,18 +45,18 @@ class AuthRepositoryImpl implements AuthRepository {
       final firebaseUser = userCredential.user;
       if (firebaseUser != null) {
         await firebaseUser.updateDisplayName(name);
-        return Either.right(AppUser(
+        return Right(AppUser(
           id: firebaseUser.uid,
           email: firebaseUser.email ?? '',
           name: name,
         ));
       } else {
-        return Either.left(const Failure('فشل إنشاء الحساب'));
+        return Left(const Failure('فشل إنشاء الحساب'));
       }
-    } on firebase_auth.FirebaseAuthException catch (e) {
-      return Either.left(Failure(_getAuthErrorMessage(e.code)));
+    } on FirebaseAuthException catch (e) {
+      return Left(Failure(_getAuthErrorMessage(e.code)));
     } catch (e) {
-      return Either.left(const Failure('حدث خطأ غير متوقع'));
+      return Left(const Failure('حدث خطأ غير متوقع'));
     }
   }
 
@@ -66,7 +67,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AppUser?> getCurrentUser() async {
-    final firebaseUser = _firebaseService.auth.currentUser;
+    final firebaseUser = _firebaseService.currentUser;
     if (firebaseUser != null) {
       return AppUser(
         id: firebaseUser.uid,
