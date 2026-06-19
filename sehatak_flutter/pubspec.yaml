@@ -1,7 +1,7 @@
 name: sehatak_flutter
 description: منصة صحتك - الرعاية الصحية اليمنية الشاملة
 publish_to: 'none'
-version: 2.0.0+1
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -10,97 +10,74 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # ==============================================
-  # 🏗️ الأساسيات - Architecture
-  # ==============================================
+  # الأساسيات
+  cupertino_icons: ^1.0.6
   flutter_bloc: ^8.1.3
+  bloc: ^8.1.2
   equatable: ^2.0.5
-  get_it: ^7.6.4
-  injectable: ^2.3.0
 
-  # ==============================================
-  # 🌐 الشبكة - Networking
-  # ==============================================
-  dio: ^5.4.0
-  retrofit: ^4.0.1
-  logger: ^2.0.2+1
-
-  # ==============================================
-  # 🔥 Firebase - Backend
-  # ==============================================
+  # Firebase
   firebase_core: ^2.25.4
   firebase_auth: ^4.17.4
   cloud_firestore: ^4.14.0
+  firebase_messaging: ^14.7.10
+  firebase_analytics: ^10.8.0
+  firebase_crashlytics: ^3.4.9
   firebase_storage: ^11.6.0
   google_sign_in: ^6.2.1
 
-  # ==============================================
-  # 📱 التخزين المحلي - Local Storage
-  # ==============================================
-  shared_preferences: ^2.2.2
-  sqflite: ^2.3.0
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
+  # مكالمات الفيديو والصوت - Agora
+  permission_handler: ^11.1.0
 
-  # ==============================================
-  # 🎨 واجهة المستخدم - UI/UX
-  # ==============================================
-  flutter_svg: ^2.0.9
-  lottie: ^2.7.0
-  shimmer: ^3.0.0
-  cached_network_image: ^3.3.1
-  flutter_slidable: ^3.0.1
-  pull_to_refresh: ^2.0.0
-  confetti: ^0.7.0
-  flutter_staggered_grid_view: ^0.7.0
-
-  # ==============================================
-  # 📊 التحليلات - Analytics
-  # ==============================================
-  firebase_analytics: ^10.8.0
-  firebase_crashlytics: ^3.4.9
-
-  # ==============================================
-  # 🔧 أدوات - Utilities
-  # ==============================================
-  intl: ^0.18.1
-  url_launcher: ^6.2.3
-  share_plus: ^7.2.1
+  # الدردشة المحسنة
+  flutter_chat_ui: ^1.6.9
+  chat_bubbles: ^1.4.1
   image_picker: ^1.0.7
   file_picker: ^6.1.1
+
+  # 💳 الدفع - Stripe فقط (تم إزالة pay و payment)
+
+  # UI & Design
+  flutter_svg: ^2.0.9
+  shimmer: ^3.0.0
+  cached_network_image: ^3.3.1
+  lottie: ^2.7.0
+  confetti: ^0.7.0
+  flutter_staggered_grid_view: ^0.7.0
+  flutter_slidable: ^3.0.1
+  pull_to_refresh: ^2.0.0
+
+  # Functionality
+  url_launcher: ^6.2.3
+  share_plus: ^7.2.1
   local_auth: ^2.1.8
+  shared_preferences: ^2.2.2
+  table_calendar: ^3.0.9
+  fl_chart: ^0.66.0
+  intl: ^0.18.1
+  http: ^1.2.0
+  dio: ^5.4.0
   connectivity_plus: ^5.0.2
   device_info_plus: ^9.1.1
   package_info_plus: ^5.0.1
-  permission_handler: ^11.1.0
-  path_provider: ^2.1.1
-  webview_flutter: ^4.4.0
 
-  # ==============================================
-  # 🗺️ الموقع - Location
-  # ==============================================
+  # Maps & Location
   google_maps_flutter: ^2.5.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.1
   geolocator: ^10.1.0
   geocoding: ^3.0.0
 
-  # ==============================================
-  # 📊 التقارير - Charts
-  # ==============================================
-  fl_chart: ^0.66.0
-  table_calendar: ^3.0.9
-
-  # ==============================================
-  # 🧠 البرمجة الوظيفية - Functional Programming
-  # ==============================================
-  dartz: ^0.10.1
+  # Other
+  path_provider: ^2.1.1
+  sqflite: ^2.3.0
+  socket_io_client: ^2.0.3
+  webview_flutter: ^4.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-  build_runner: ^2.4.7
-  injectable_generator: ^2.4.1
-  retrofit_generator: ^7.0.8
 
 flutter:
   uses-material-design: true
@@ -109,7 +86,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
-    - assets/animations/
 
   fonts:
     - family: Cairo
@@ -121,4 +97,9 @@ flutter:
       fonts:
         - asset: assets/fonts/Rubik-Regular.ttf
         - asset: assets/fonts/Rubik-Bold.ttf
+          weight: 700
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Regular.ttf
+        - asset: assets/fonts/Tajawal-Bold.ttf
           weight: 700

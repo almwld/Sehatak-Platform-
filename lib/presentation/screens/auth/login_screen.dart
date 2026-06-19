@@ -1,278 +1,240 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/auth_bloc/auth_bloc.dart';
-import '../../../core/constants/app_colors.dart';
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
+import 'package:sehatak/core/constants/app_colors.dart';
+import 'package:sehatak/core/services/api_service.dart';
+import 'package:sehatak/presentation/screens/home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   bool _obscurePassword = true;
-  bool _isDoctor = false;
+  bool _obscureConfirm = true;
+  bool _agreeTerms = false;
+  bool _isLoading = false;
+
+  final _loginEmailController = TextEditingController(text: 'ahmed@email.com');
+  final _loginPasswordController = TextEditingController(text: '123456');
+  final _registerNameController = TextEditingController();
+  final _registerEmailController = TextEditingController();
+  final _registerPhoneController = TextEditingController();
+  final _registerPasswordController = TextEditingController();
+  final _registerConfirmController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  Future<void> _handleLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await ApiService.login(
+        email: _loginEmailController.text.trim(),
+        password: _loginPasswordController.text.trim(),
+      );
+      if (result['token'] != null) {
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      } else {
+        _showError(result['error'] ?? 'فشل تسجيل الدخول');
+      }
+    } catch (e) {
+      _showError('تعذر الاتصال بالخادم. يعمل التطبيق محلياً.');
+      // الدخول بدون API للتطوير
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    }
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _handleRegister() async {
+    if (_registerPasswordController.text != _registerConfirmController.text) {
+      _showError('كلمتا المرور غير متطابقتين');
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      final result = await ApiService.register(
+        fullName: _registerNameController.text.trim(),
+        email: _registerEmailController.text.trim(),
+        phone: _registerPhoneController.text.trim(),
+        password: _registerPasswordController.text.trim(),
+      );
+      if (result['token'] != null) {
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      } else {
+        _showError(result['error'] ?? 'فشل التسجيل');
+      }
+    } catch (e) {
+      _showError('تعذر الاتصال بالخادم');
+    }
+    setState(() => _isLoading = false);
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.error),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthAuthenticated) {
-            Navigator.pushReplacementNamed(context, '/home');
-          }
-          if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          final isLoading = state is AuthLoading;
-          return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 40),
-                  const Text(
-                    'مرحباً بك!',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'سجل دخولك للاستفادة من جميع الخدمات',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.darkGrey,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  _buildToggleButtons(),
-                  const SizedBox(height: 24),
-                  _buildEmailField(),
-                  const SizedBox(height: 16),
-                  _buildPasswordField(),
-                  const SizedBox(height: 8),
-                  _buildForgotPassword(),
-                  const SizedBox(height: 24),
-                  _buildLoginButton(isLoading),
-                  const SizedBox(height: 16),
-                  _buildRegisterRow(),
-                  const SizedBox(height: 20),
-                ],
-              ),
+      body: SafeArea(
+        child: Column(children: [
+          const SizedBox(height: 20),
+          Container(
+            width: 80, height: 80,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 15)],
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildToggleButtons() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _isDoctor = false),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: !_isDoctor ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.person,
-                      color: !_isDoctor ? AppColors.white : AppColors.darkGrey,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'مريض',
-                      style: TextStyle(
-                        color: !_isDoctor ? AppColors.white : AppColors.darkGrey,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            child: const Icon(Icons.health_and_safety, color: Colors.white, size: 45),
+          ),
+          const SizedBox(height: 10),
+          const Text('صحتك', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primary)),
+          const Text('صحتك، أولويتنا', style: TextStyle(fontSize: 13, color: AppColors.grey)),
+          const SizedBox(height: 16),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1A2540) : AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicator: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(12)),
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: Colors.white,
+              unselectedLabelColor: AppColors.darkGrey,
+              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              padding: const EdgeInsets.all(4),
+              tabs: const [Tab(text: 'تسجيل الدخول'), Tab(text: 'إنشاء حساب')],
             ),
           ),
           Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _isDoctor = true),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: _isDoctor ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.medical_services,
-                      color: _isDoctor ? AppColors.white : AppColors.darkGrey,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'طبيب',
-                      style: TextStyle(
-                        color: _isDoctor ? AppColors.white : AppColors.darkGrey,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildLoginTab(isDark),
+                _buildRegisterTab(isDark),
+              ],
             ),
           ),
-        ],
+        ]),
       ),
     );
   }
 
-  Widget _buildEmailField() {
-    return TextField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      decoration: const InputDecoration(
-        labelText: 'البريد الإلكتروني',
-        prefixIcon: Icon(Icons.email, color: AppColors.primary),
-        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-      ),
-      textDirection: TextDirection.rtl,
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextField(
-      controller: _passwordController,
-      obscureText: _obscurePassword,
-      decoration: InputDecoration(
-        labelText: 'كلمة المرور',
-        prefixIcon: const Icon(Icons.lock, color: AppColors.primary),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword ? Icons.visibility : Icons.visibility_off,
-            color: AppColors.grey,
-          ),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-        ),
-        border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-      ),
-      textDirection: TextDirection.rtl,
-    );
-  }
-
-  Widget _buildForgotPassword() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-        ),
-        child: const Text(
-          'نسيت كلمة المرور؟',
-          style: TextStyle(color: AppColors.primary),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginButton(bool isLoading) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : _login,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: isLoading
-            ? const CircularProgressIndicator(color: AppColors.white)
-            : const Text(
-                'تسجيل الدخول',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildRegisterRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'ليس لديك حساب؟',
-          style: TextStyle(color: AppColors.darkGrey),
-        ),
-        TextButton(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const RegisterScreen()),
-          ),
-          child: const Text(
-            'إنشاء حساب',
-            style: TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
+  Widget _buildLoginTab(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const SizedBox(height: 10),
+        const Text('مرحباً بعودتك!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const Text('سجل دخولك للمتابعة', style: TextStyle(color: AppColors.grey, fontSize: 14)),
+        const SizedBox(height: 28),
+        TextField(
+          controller: _loginEmailController,
+          keyboardType: TextInputType.emailAddress,
+          textAlign: TextAlign.right,
+          decoration: InputDecoration(
+            labelText: 'البريد الإلكتروني',
+            prefixIcon: const Icon(Icons.email_outlined),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            filled: true,
+            fillColor: isDark ? const Color(0xFF1A2540) : AppColors.surfaceContainerLow.withOpacity(0.5),
           ),
         ),
-      ],
+        const SizedBox(height: 16),
+        TextField(
+          controller: _loginPasswordController,
+          obscureText: _obscurePassword,
+          textAlign: TextAlign.right,
+          decoration: InputDecoration(
+            labelText: 'كلمة المرور',
+            prefixIcon: const Icon(Icons.lock_outline),
+            suffixIcon: IconButton(icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility), onPressed: () => setState(() => _obscurePassword = !_obscurePassword)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            filled: true,
+            fillColor: isDark ? const Color(0xFF1A2540) : AppColors.surfaceContainerLow.withOpacity(0.5),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Align(alignment: Alignment.centerLeft, child: TextButton(onPressed: () {}, child: const Text('نسيت كلمة المرور؟'))),
+        const SizedBox(height: 20),
+        SizedBox(
+          height: 54,
+          child: ElevatedButton(
+            onPressed: _isLoading ? null : _handleLogin,
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 3),
+            child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('تسجيل الدخول', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Text('ليس لديك حساب؟', style: TextStyle(color: AppColors.darkGrey)),
+          TextButton(onPressed: () => _tabController.animateTo(1), child: const Text('إنشاء حساب', style: TextStyle(fontWeight: FontWeight.bold))),
+        ]),
+      ]),
     );
   }
 
-  void _login() {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى ملء جميع الحقول'),
-          backgroundColor: AppColors.error,
+  Widget _buildRegisterTab(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const SizedBox(height: 10),
+        const Text('انضم إلى صحتك', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const Text('أنشئ حسابك وابدأ رحلتك الصحية', style: TextStyle(color: AppColors.grey, fontSize: 14)),
+        const SizedBox(height: 24),
+        TextField(controller: _registerNameController, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'الاسم الكامل', prefixIcon: const Icon(Icons.person_outline), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: isDark ? const Color(0xFF1A2540) : AppColors.surfaceContainerLow.withOpacity(0.5))),
+        const SizedBox(height: 14),
+        TextField(controller: _registerEmailController, keyboardType: TextInputType.emailAddress, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'البريد الإلكتروني', prefixIcon: const Icon(Icons.email_outlined), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: isDark ? const Color(0xFF1A2540) : AppColors.surfaceContainerLow.withOpacity(0.5))),
+        const SizedBox(height: 14),
+        TextField(controller: _registerPhoneController, keyboardType: TextInputType.phone, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'رقم الهاتف', prefixIcon: const Icon(Icons.phone_android), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: isDark ? const Color(0xFF1A2540) : AppColors.surfaceContainerLow.withOpacity(0.5))),
+        const SizedBox(height: 14),
+        TextField(controller: _registerPasswordController, obscureText: _obscurePassword, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'كلمة المرور', prefixIcon: const Icon(Icons.lock_outline), suffixIcon: IconButton(icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility), onPressed: () => setState(() => _obscurePassword = !_obscurePassword)), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: isDark ? const Color(0xFF1A2540) : AppColors.surfaceContainerLow.withOpacity(0.5))),
+        const SizedBox(height: 14),
+        TextField(controller: _registerConfirmController, obscureText: _obscureConfirm, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'تأكيد كلمة المرور', prefixIcon: const Icon(Icons.lock_outline), suffixIcon: IconButton(icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility), onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm)), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: isDark ? const Color(0xFF1A2540) : AppColors.surfaceContainerLow.withOpacity(0.5))),
+        const SizedBox(height: 16),
+        Row(children: [Checkbox(value: _agreeTerms, activeColor: AppColors.primary, onChanged: (v) => setState(() => _agreeTerms = v!)), const Expanded(child: Text('أوافق على الشروط والأحكام', style: TextStyle(fontSize: 11, color: AppColors.darkGrey)))]),
+        const SizedBox(height: 18),
+        SizedBox(
+          height: 54,
+          child: ElevatedButton(
+            onPressed: (_agreeTerms && !_isLoading) ? _handleRegister : null,
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 3),
+            child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('إنشاء حساب', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ),
         ),
-      );
-      return;
-    }
-
-    context.read<AuthBloc>().add(
-      LoginRequested(
-        email: email,
-        password: password,
-        isDoctor: _isDoctor,
-      ),
+        const SizedBox(height: 24),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Text('لديك حساب بالفعل؟', style: TextStyle(color: AppColors.darkGrey)),
+          TextButton(onPressed: () => _tabController.animateTo(0), child: const Text('تسجيل الدخول', style: TextStyle(fontWeight: FontWeight.bold))),
+        ]),
+      ]),
     );
   }
 }

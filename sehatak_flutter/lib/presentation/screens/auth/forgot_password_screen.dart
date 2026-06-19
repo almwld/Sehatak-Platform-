@@ -1,117 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../../core/constants/app_colors.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
-
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  final TextEditingController _emailController = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  bool _loading = false;
+
+  void _sendOTP() {
+    if (_phoneCtrl.text.isNotEmpty) {
+      setState(() => _loading = true);
+      Future.delayed(const Duration(seconds: 2), () {
+        setState(() => _loading = false);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const OtpVerificationScreen(phone: '')));
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('نسيت كلمة المرور'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: AppColors.primary,
-      ),
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.success,
-              ),
-            );
-            Navigator.pop(context);
-          }
-          if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          final isLoading = state is AuthLoading;
-          return Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40),
-                const Text(
-                  'إعادة تعيين كلمة المرور',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'سنرسل رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني',
-                  style: TextStyle(color: AppColors.darkGrey),
-                ),
-                const SizedBox(height: 32),
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'البريد الإلكتروني',
-                    prefixIcon: Icon(Icons.email, color: AppColors.primary),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                  ),
-                  textDirection: TextDirection.rtl,
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _resetPassword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: AppColors.white)
-                        : const Text(
-                            'إرسال',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+      appBar: AppBar(title: const Text('نسيت كلمة المرور')),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          SizedBox(height: 40),
+          const Icon(Icons.lock_reset, size: 80, color: AppColors.primary),
+          SizedBox(height: 24),
+          const Text('نسيت كلمة المرور', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          SizedBox(height: 12),
+          const Text('أدخل رقم هاتفك لإرسال رمز التحقق', style: TextStyle(color: AppColors.grey, fontSize: 14), textAlign: TextAlign.center),
+          SizedBox(height: 32),
+          TextField(controller: _phoneCtrl, keyboardType: TextInputType.phone, textDirection: TextDirection.ltr, decoration: InputDecoration(labelText: 'رقم الهاتف', prefixIcon: const Icon(Icons.phone_android, color: AppColors.primary), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+          SizedBox(height: 24),
+          SizedBox(height: 52, child: ElevatedButton(onPressed: _loading ? null : _sendOTP, style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))), child: _loading ? const CircularProgressIndicator(color: Colors.white) : const Text('إرسال رمز التحقق', style: TextStyle(fontSize: 17)))),
+        ]),
       ),
     );
   }
 
-  void _resetPassword() {
-    final email = _emailController.text.trim();
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى إدخال البريد الإلكتروني'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-    context.read<AuthBloc>().add(ResetPasswordRequested(email));
-  }
+  @override
+  void dispose() { _phoneCtrl.dispose(); super.dispose(); }
 }

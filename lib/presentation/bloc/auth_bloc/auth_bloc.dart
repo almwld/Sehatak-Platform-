@@ -1,171 +1,297 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/services/firebase_service.dart';
+import '../../../data/models/user_models/user_model.dart';
 
-// Events
-abstract class AuthEvent {}
+// ========== EVENTS ==========
+abstract class AuthEvent extends Equatable {
+  const AuthEvent();
+  @override
+  List<Object?> get props => [];
+}
 
 class AppStarted extends AuthEvent {}
+
+class LoginWithPhoneRequested extends AuthEvent {
+  final String phone;
+  const LoginWithPhoneRequested(this.phone);
+  @override
+  List<Object?> get props => [phone];
+}
+
+class VerifyOTPRequested extends AuthEvent {
+  final String verificationId;
+  final String otp;
+  const VerifyOTPRequested({required this.verificationId, required this.otp});
+  @override
+  List<Object?> get props => [verificationId, otp];
+}
 
 class LoginRequested extends AuthEvent {
   final String email;
   final String password;
-  final bool isDoctor;
-  LoginRequested({
-    required this.email,
-    required this.password,
-    this.isDoctor = false,
-  });
+  const LoginRequested({required this.email, required this.password});
+  @override
+  List<Object?> get props => [email, password];
 }
 
 class RegisterRequested extends AuthEvent {
+  final String fullName;
   final String email;
+  final String phone;
   final String password;
-  final String name;
-  final bool isDoctor;
-  RegisterRequested({
+  const RegisterRequested({
+    required this.fullName,
     required this.email,
+    required this.phone,
     required this.password,
-    required this.name,
-    this.isDoctor = false,
   });
+  @override
+  List<Object?> get props => [fullName, email, phone, password];
 }
 
 class LogoutRequested extends AuthEvent {}
 
-class ResetPasswordRequested extends AuthEvent {
+class ForgotPasswordRequested extends AuthEvent {
   final String email;
-  ResetPasswordRequested(this.email);
+  const ForgotPasswordRequested(this.email);
 }
 
-// States
-abstract class AuthState {}
+class ResendOTPRequested extends AuthEvent {
+  final String phone;
+  const ResendOTPRequested(this.phone);
+}
+
+// ========== STATES ==========
+abstract class AuthState extends Equatable {
+  const AuthState();
+  @override
+  List<Object?> get props => [];
+}
 
 class AuthInitial extends AuthState {}
-
 class AuthLoading extends AuthState {}
-
-class AuthAuthenticated extends AuthState {
-  final User user;
-  AuthAuthenticated(this.user);
+class AuthCodeSent extends AuthState {
+  final String verificationId;
+  final int? resendToken;
+  const AuthCodeSent({required this.verificationId, this.resendToken});
 }
-
+class AuthPhoneVerified extends AuthState {
+  final bool isNewUser;
+  final String phone;
+  const AuthPhoneVerified({required this.isNewUser, required this.phone});
+}
+class AuthAuthenticated extends AuthState {
+  final UserModel user;
+  const AuthAuthenticated(this.user);
+}
 class AuthUnauthenticated extends AuthState {}
-
 class AuthError extends AuthState {
   final String message;
-  AuthError(this.message);
+  const AuthError(this.message);
 }
+class PasswordResetSent extends AuthState {}
 
-class AuthSuccess extends AuthState {
-  final String message;
-  AuthSuccess(this.message);
-}
-
-// Bloc
+// ========== BLOC ==========
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final FirebaseService _firebaseService = FirebaseService();
+  final FirebaseService _firebase = FirebaseService();
 
   AuthBloc() : super(AuthInitial()) {
     on<AppStarted>(_onAppStarted);
-    on<LoginRequested>(_onLoginRequested);
-    on<RegisterRequested>(_onRegisterRequested);
-    on<LogoutRequested>(_onLogoutRequested);
-    on<ResetPasswordRequested>(_onResetPasswordRequested);
+    on<LoginWithPhoneRequested>(_onLoginWithPhone);
+    on<VerifyOTPRequested>(_onVerifyOTP);
+    on<LoginRequested>(_onLogin);
+    on<RegisterRequested>(_onRegister);
+    on<LogoutRequested>(_onLogout);
+    on<ForgotPasswordRequested>(_onForgotPassword);
+    on<ResendOTPRequested>(_onResendOTP);
   }
 
   void _onAppStarted(AppStarted event, Emitter<AuthState> emit) {
-    // ✅ التحقق من المستخدم الحالي (إذا كان Firebase جاهزاً)
-    try {
-      final user = _firebaseService.currentUser;
-      if (user != null) {
-        emit(AuthAuthenticated(user));
-      } else {
-        emit(AuthUnauthenticated());
-      }
-    } catch (e) {
-      // ✅ إذا لم يكن Firebase جاهزاً، نعتبر المستخدم غير مسجل
+    if (_firebase.isLoggedIn) {
+      final user = _firebase.currentUser!;
+      emit(AuthAuthenticated(UserModel(
+        id: user.uid,
+        phone: user.phoneNumber,
+        email: user.email,
+      )));
+    } else {
       emit(AuthUnauthenticated());
     }
   }
 
-  Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onLoginWithPhone(
+    LoginWithPhoneRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     try {
-      final credential = await _firebaseService.signInWithEmail(
-        event.email,
-        event.password,
+      await _firebase.auth.verifyPhoneNumber(
+        phoneNumber: '+967${event.phone}',
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          final userCred = await _firebase.auth.signInWithCredential(credential);
+          await _handleLoginSuccess(userCred, emit);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          emit(AuthError(_getErrorMsg(e.code)));
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          emit(AuthCodeSent(
+            verificationId: verificationId,
+            resendToken: resendToken,
+          ));
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
       );
-      emit(AuthAuthenticated(credential.user!));
-    } on FirebaseAuthException catch (e) {
-      emit(AuthError(_getErrorMessage(e)));
     } catch (e) {
-      emit(AuthError('حدث خطأ غير متوقع'));
+      emit(AuthError('فشل إرسال رمز التحقق'));
     }
   }
 
-  Future<void> _onRegisterRequested(RegisterRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onVerifyOTP(
+    VerifyOTPRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     try {
-      final credential = await _firebaseService.createUserWithEmail(
-        event.email,
-        event.password,
+      final credential = PhoneAuthProvider.credential(
+        verificationId: event.verificationId,
+        smsCode: event.otp,
+      );
+      final userCred = await _firebase.auth.signInWithCredential(credential);
+      await _handleLoginSuccess(userCred, emit);
+    } catch (e) {
+      emit(AuthError('رمز التحقق غير صحيح'));
+    }
+  }
+
+  Future<void> _onLogin(
+    LoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      final userCred = await _firebase.auth.signInWithEmailAndPassword(
+        email: event.email.trim(),
+        password: event.password,
+      );
+      await _handleLoginSuccess(userCred, emit);
+    } on FirebaseAuthException catch (e) {
+      emit(AuthError(_getErrorMsg(e.code)));
+    }
+  }
+
+  Future<void> _onRegister(
+    RegisterRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      final userCred = await _firebase.auth.createUserWithEmailAndPassword(
+        email: event.email.trim(),
+        password: event.password,
       );
 
-      await credential.user?.updateDisplayName(event.name);
-
-      await FirebaseService().firestore.collection('users').doc(credential.user!.uid).set({
-        'name': event.name,
-        'email': event.email,
-        'isDoctor': event.isDoctor,
+      await _firebase.userDoc(userCred.user!.uid).set({
+        'id': userCred.user!.uid,
+        'email': event.email.trim(),
+        'phone': event.phone,
+        'fullName': event.fullName,
+        'role': 'patient',
+        'isVerified': true,
+        'walletBalance': 0.0,
         'createdAt': FieldValue.serverTimestamp(),
+        'lastLogin': FieldValue.serverTimestamp(),
       });
 
-      emit(AuthAuthenticated(credential.user!));
+      final userDoc = await _firebase.userDoc(userCred.user!.uid).get();
+      emit(AuthAuthenticated(UserModel.fromFirestore(userDoc)));
     } on FirebaseAuthException catch (e) {
-      emit(AuthError(_getErrorMessage(e)));
-    } catch (e) {
-      emit(AuthError('حدث خطأ غير متوقع'));
+      emit(AuthError(_getErrorMsg(e.code)));
     }
   }
 
-  Future<void> _onLogoutRequested(LogoutRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onLogout(
+    LogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    await _firebase.auth.signOut();
+    emit(AuthUnauthenticated());
+  }
+
+  Future<void> _onForgotPassword(
+    ForgotPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     try {
-      await _firebaseService.signOut();
-      emit(AuthUnauthenticated());
-    } catch (e) {
-      emit(AuthError('حدث خطأ أثناء تسجيل الخروج'));
-    }
-  }
-
-  Future<void> _onResetPasswordRequested(ResetPasswordRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
-    try {
-      await _firebaseService.sendPasswordResetEmail(event.email);
-      emit(AuthSuccess('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني'));
+      await _firebase.auth.sendPasswordResetEmail(email: event.email.trim());
+      emit(PasswordResetSent());
     } on FirebaseAuthException catch (e) {
-      emit(AuthError(_getErrorMessage(e)));
-    } catch (e) {
-      emit(AuthError('حدث خطأ غير متوقع'));
+      emit(AuthError(_getErrorMsg(e.code)));
     }
   }
 
-  String _getErrorMessage(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'user-not-found':
-        return 'المستخدم غير موجود';
-      case 'wrong-password':
-        return 'كلمة المرور غير صحيحة';
-      case 'email-already-in-use':
-        return 'البريد الإلكتروني مستخدم بالفعل';
-      case 'invalid-email':
-        return 'البريد الإلكتروني غير صحيح';
-      case 'weak-password':
-        return 'كلمة المرور ضعيفة جداً';
-      default:
-        return e.message ?? 'حدث خطأ';
+  Future<void> _onResendOTP(
+    ResendOTPRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      await _firebase.auth.verifyPhoneNumber(
+        phoneNumber: '+967${event.phone}',
+        verificationCompleted: (credential) async {},
+        verificationFailed: (e) {
+          emit(AuthError(_getErrorMsg(e.code)));
+        },
+        codeSent: (verificationId, resendToken) {
+          emit(AuthCodeSent(
+            verificationId: verificationId,
+            resendToken: resendToken,
+          ));
+        },
+        codeAutoRetrievalTimeout: (verificationId) {},
+      );
+    } catch (e) {
+      emit(AuthError('فشل إعادة الإرسال'));
+    }
+  }
+
+  Future<void> _handleLoginSuccess(
+    UserCredential userCred,
+    Emitter<AuthState> emit,
+  ) async {
+    final user = userCred.user!;
+
+    await _firebase.userDoc(user.uid).update({
+      'lastLogin': FieldValue.serverTimestamp(),
+      'deviceToken': await _firebase.messaging.getToken() ?? '',
+    });
+
+    final userDoc = await _firebase.userDoc(user.uid).get();
+
+    if (userDoc.exists) {
+      emit(AuthAuthenticated(UserModel.fromFirestore(userDoc)));
+    } else {
+      emit(AuthPhoneVerified(
+        isNewUser: true,
+        phone: user.phoneNumber ?? '',
+      ));
+    }
+  }
+
+  String _getErrorMsg(String code) {
+    switch (code) {
+      case 'invalid-phone-number': return 'رقم الهاتف غير صالح';
+      case 'user-not-found': return 'المستخدم غير موجود';
+      case 'wrong-password': return 'كلمة المرور غير صحيحة';
+      case 'email-already-in-use': return 'البريد الإلكتروني مستخدم مسبقاً';
+      case 'invalid-email': return 'بريد إلكتروني غير صالح';
+      case 'weak-password': return 'كلمة المرور ضعيفة';
+      case 'invalid-verification-code': return 'رمز التحقق غير صحيح';
+      case 'too-many-requests': return 'طلبات كثيرة جداً، حاول لاحقاً';
+      default: return 'حدث خطأ: $code';
     }
   }
 }

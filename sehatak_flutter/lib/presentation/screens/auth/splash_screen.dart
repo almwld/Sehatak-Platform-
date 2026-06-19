@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/auth_bloc/auth_bloc.dart';
-import 'login_screen.dart';
-import '../../../core/constants/app_colors.dart';
+import '../home/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
       }
     });
@@ -29,38 +26,44 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [AppColors.primary, AppColors.primaryDark],
+            colors: [Color(0xFF0077B6), Color(0xFF00B4D8)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.health_and_safety, size: 100, color: AppColors.white),
-              SizedBox(height: 20),
-              Text(
+              const Icon(
+                Icons.health_and_safety,
+                size: 100,
+                color: Colors.white,
+              ),
+              const SizedBox(height: 20),
+              const Text(
                 'صحتك',
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.white,
+                  color: Colors.white,
+                  fontFamily: 'Cairo',
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
-                'تطبيقك الطبي المتكامل',
+              const SizedBox(height: 10),
+              const Text(
+                'Sehatak',
                 style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.white70,
+                  fontSize: 20,
+                  color: Colors.white70,
+                  fontFamily: 'Cairo',
                 ),
               ),
-              SizedBox(height: 40),
-              CircularProgressIndicator(
-                color: AppColors.white,
+              const SizedBox(height: 40),
+              const CircularProgressIndicator(
+                color: Colors.white,
               ),
             ],
           ),

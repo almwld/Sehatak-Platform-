@@ -1,49 +1,26 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../constants/app_colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseService {
   static final FirebaseService _instance = FirebaseService._internal();
   factory FirebaseService() => _instance;
   FirebaseService._internal();
 
-  late FirebaseFirestore firestore;
-  late FirebaseAuth auth;
+  late final FirebaseAuth auth;
+  late final FirebaseFirestore firestore;
 
   Future<void> initialize() async {
-    firestore = FirebaseFirestore.instance;
     auth = FirebaseAuth.instance;
-
-    await firestore.enablePersistence();
-
-    firestore.settings = const Settings(
-      persistenceEnabled: true,
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
+    firestore = FirebaseFirestore.instance;
+    auth.setLanguageCode('ar');
   }
 
   User? get currentUser => auth.currentUser;
+  Stream<User?> get authState => auth.authStateChanges();
+  bool get isLoggedIn => auth.currentUser != null;
 
-  Future<UserCredential> signInWithEmail(String email, String password) async {
-    return await auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-  }
-
-  Future<UserCredential> createUserWithEmail(String email, String password) async {
-    return await auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-  }
-
-  Future<void> signOut() async {
-    await auth.signOut();
-  }
-
-  Future<void> sendPasswordResetEmail(String email) async {
-    await auth.sendPasswordResetEmail(email: email);
-  }
+  CollectionReference get usersCol => firestore.collection('users');
+  CollectionReference get doctorsCol => firestore.collection('doctors');
+  CollectionReference get appointmentsCol => firestore.collection('appointments');
+  DocumentReference userDoc(String uid) => usersCol.doc(uid);
 }
