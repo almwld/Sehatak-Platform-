@@ -89,6 +89,11 @@ dependencies:
   fl_chart: ^0.66.0
   table_calendar: ^3.0.9
 
+  # ==============================================
+  # 🧠 البرمجة الوظيفية - Functional Programming
+  # ==============================================
+  dartz: ^0.10.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -117,6 +122,3 @@ flutter:
         - asset: assets/fonts/Rubik-Regular.ttf
         - asset: assets/fonts/Rubik-Bold.ttf
           weight: 700
-
-  # معالجة الأخطاء البرمجية
-  dartz: ^0.10.1
