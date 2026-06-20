@@ -12,13 +12,21 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
+  // ✅ تهيئة Firebase مع timeout و catchError
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
+    ).timeout(
+      const Duration(seconds: 5),
+      onTimeout: () {
+        print('⚠️ Firebase initialization timeout - continuing anyway');
+        return Firebase.initializeApp();
+      },
     );
-    print('✅ Firebase initialized');
+    print('✅ Firebase initialized successfully');
   } catch (e) {
-    print('❌ Firebase error: $e');
+    print('❌ Firebase initialization error: $e');
+    // ✅ نستمر حتى لو فشلت Firebase (نعرض Login)
   }
 
   runApp(const MyApp());

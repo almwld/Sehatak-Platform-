@@ -96,19 +96,26 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يرجى ملء جميع الحقول')),
-      );
+      _showMessage('يرجى ملء جميع الحقول');
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      // ✅ إضافة timeout لـ Firebase Auth
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw Exception('انتهى وقت الاتصال');
+            },
+          );
+
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -116,12 +123,20 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'خطأ في تسجيل الدخول')),
-      );
+      _showMessage(e.message ?? 'خطأ في تسجيل الدخول');
+    } on TimeoutException {
+      _showMessage('انتهى وقت الاتصال، يرجى المحاولة مرة أخرى');
+    } catch (e) {
+      _showMessage('حدث خطأ غير متوقع');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }
 
@@ -200,9 +215,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = _passwordController.text.trim();
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يرجى ملء جميع الحقول')),
-      );
+      _showMessage('يرجى ملء جميع الحقول');
       return;
     }
 
@@ -213,6 +226,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           .createUserWithEmailAndPassword(
             email: email,
             password: password,
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw Exception('انتهى وقت الاتصال');
+            },
           );
 
       await FirebaseFirestore.instance
@@ -231,12 +250,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'خطأ في إنشاء الحساب')),
-      );
+      _showMessage(e.message ?? 'خطأ في إنشاء الحساب');
+    } on TimeoutException {
+      _showMessage('انتهى وقت الاتصال، يرجى المحاولة مرة أخرى');
+    } catch (e) {
+      _showMessage('حدث خطأ غير متوقع');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }
 
