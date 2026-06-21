@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'presentation/screens/auth/login_screen.dart';
 
-class SehatakApp extends StatelessWidget {
-  const SehatakApp({super.key});
+class AppRouter {
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String home = '/home';
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'صحتك',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2E7D32)),
-        useMaterial3: true,
-        fontFamily: 'Cairo',
-      ),
-      home: const LoginScreen(),
-    );
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case login:
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
+      default:
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Page not found')),
+          ),
+        );
+    }
   }
 }

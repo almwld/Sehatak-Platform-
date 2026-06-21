@@ -1,40 +1,44 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 
 // Events
 abstract class ThemeEvent {}
-class SetThemeEvent extends ThemeEvent {
-  final bool isDark;
-  SetThemeEvent(this.isDark);
+class ThemeToggled extends ThemeEvent {}
+class ThemeSet extends ThemeEvent {
+  final ThemeMode mode;
+  ThemeSet(this.mode);
 }
-class GetThemeEvent extends ThemeEvent {}
 
 // States
 abstract class ThemeState {}
-class ThemeInitialState extends ThemeState {}
+class ThemeInitial extends ThemeState {
+  final ThemeMode themeMode;
+  ThemeInitial({this.themeMode = ThemeMode.light});
+}
 class ThemeLoadedState extends ThemeState {
   final ThemeMode themeMode;
-  ThemeLoadedState(this.themeMode);
+  ThemeLoadedState({required this.themeMode});
 }
 
-// BLoC
 class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
-  ThemeBloc() : super(ThemeInitialState()) {
-    on<GetThemeEvent>(_onGetTheme);
-    on<SetThemeEvent>(_onSetTheme);
-    add(GetThemeEvent());
+  ThemeBloc() : super(ThemeInitial()) {
+    on<ThemeToggled>(_onThemeToggled);
+    on<ThemeSet>(_onThemeSet);
   }
 
-  Future<void> _onGetTheme(GetThemeEvent event, Emitter<ThemeState> emit) async {
-    final prefs = await SharedPreferences.getInstance();
-    final isDark = prefs.getBool('isDark') ?? false;
-    emit(ThemeLoadedState(isDark ? ThemeMode.dark : ThemeMode.light));
+  void _onThemeToggled(ThemeToggled event, Emitter<ThemeState> emit) {
+    final currentMode = (state is ThemeLoadedState) 
+        ? (state as ThemeLoadedState).themeMode 
+        : ThemeMode.light;
+    
+    final newMode = currentMode == ThemeMode.light 
+        ? ThemeMode.dark 
+        : ThemeMode.light;
+    
+    emit(ThemeLoadedState(themeMode: newMode));
   }
 
-  Future<void> _onSetTheme(SetThemeEvent event, Emitter<ThemeState> emit) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDark', event.isDark);
-    emit(ThemeLoadedState(event.isDark ? ThemeMode.dark : ThemeMode.light));
+  void _onThemeSet(ThemeSet event, Emitter<ThemeState> emit) {
+    emit(ThemeLoadedState(themeMode: event.mode));
   }
 }
