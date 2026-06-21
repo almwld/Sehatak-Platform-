@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sehatak_flutter/core/constants/app_colors.dart';
 import 'package:sehatak_flutter/core/services/biometric_service.dart';
 import 'package:sehatak_flutter/presentation/bloc/auth_bloc/auth_bloc.dart';
-import 'package:sehatak_flutter/presentation/screens/home/home_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/home/main_navigation.dart'; // ✅ استيراد MainNavigation
 import 'package:sehatak_flutter/presentation/screens/terms/terms_screen.dart';
 import 'package:sehatak_flutter/presentation/screens/privacy/privacy_screen.dart';
 
