@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/core/services/patient_data_service.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/services/patient_data_service.dart';
 
 class BloodPressureScreen extends StatefulWidget {
   const BloodPressureScreen({super.key});

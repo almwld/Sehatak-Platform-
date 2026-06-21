@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/core/services/medical_ai_local.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/services/medical_ai_local.dart';
 
 class SmartClinicScreen extends StatefulWidget {
   const SmartClinicScreen({super.key});

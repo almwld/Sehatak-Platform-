@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/presentation/screens/pharmacy/pharmacy_screen.dart';
-import 'package:sehatak/presentation/screens/medication/medication_reminder_screen.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/presentation/screens/pharmacy/pharmacy_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/medication/medication_reminder_screen.dart';
 
 class PatientPrescriptions extends StatefulWidget {
   const PatientPrescriptions({super.key});

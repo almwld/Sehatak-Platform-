@@ -3,11 +3,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/presentation/screens/chat/chat_screen.dart';
-import 'package:sehatak/presentation/screens/doctor/doctor_details_screen.dart';
-import 'package:sehatak/presentation/screens/pharmacy/pharmacy_screen.dart';
-import 'package:sehatak/presentation/screens/lab/labs_list_screen.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/presentation/screens/chat/chat_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/doctor/doctor_details_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/pharmacy/pharmacy_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/lab/labs_list_screen.dart';
 
 class InteractiveMapScreen extends StatefulWidget {
   final String type;

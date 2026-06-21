@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/presentation/screens/home/home_screen.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/presentation/screens/home/home_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;

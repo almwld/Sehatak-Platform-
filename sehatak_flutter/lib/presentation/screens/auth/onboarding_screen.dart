@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
 import 'login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

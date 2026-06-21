@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/presentation/screens/chat/chat_screen.dart';
-import 'package:sehatak/presentation/screens/doctor/doctors_list_screen.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/presentation/screens/chat/chat_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/doctor/doctors_list_screen.dart';
 
 class ConsultationScreen extends StatefulWidget {
   const ConsultationScreen({super.key});

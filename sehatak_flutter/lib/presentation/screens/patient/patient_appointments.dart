@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
 
 class PatientAppointments extends StatefulWidget {
   const PatientAppointments({super.key});

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/presentation/screens/blood_pressure/blood_pressure_screen.dart';
-import 'package:sehatak/presentation/screens/glucose_tracker/glucose_tracker_screen.dart';
-import 'package:sehatak/presentation/screens/weight_tracker/weight_tracker_screen.dart';
-import 'package:sehatak/presentation/screens/health_tools/heart_rate_screen.dart';
-import 'package:sehatak/presentation/screens/sleep_tracker/sleep_tracker_screen.dart';
-import 'package:sehatak/presentation/screens/step_counter/step_counter_screen.dart';
-import 'package:sehatak/presentation/screens/health_tools/bmi_calculator_screen.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/presentation/screens/blood_pressure/blood_pressure_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/glucose_tracker/glucose_tracker_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/weight_tracker/weight_tracker_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/health_tools/heart_rate_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/sleep_tracker/sleep_tracker_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/step_counter/step_counter_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/health_tools/bmi_calculator_screen.dart';
 
 class VitalsDashboardScreen extends StatelessWidget {
   const VitalsDashboardScreen({super.key});

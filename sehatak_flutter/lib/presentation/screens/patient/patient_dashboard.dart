@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/presentation/screens/patient/patient_medical_history.dart';
-import 'package:sehatak/presentation/screens/patient/patient_prescriptions.dart';
-import 'package:sehatak/presentation/screens/patient/patient_appointments.dart';
-import 'package:sehatak/presentation/screens/vaccination/vaccination_screen.dart';
-import 'package:sehatak/presentation/screens/medical_reports/medical_reports_screen.dart';
-import 'package:sehatak/presentation/screens/health_tools/bmi_calculator_screen.dart';
-import 'package:sehatak/presentation/screens/blood_pressure/blood_pressure_screen.dart';
-import 'package:sehatak/presentation/screens/glucose_tracker/glucose_tracker_screen.dart';
-import 'package:sehatak/presentation/screens/subscriptions/subscriptions_screen.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/presentation/screens/patient/patient_medical_history.dart';
+import 'package:sehatak_flutter/presentation/screens/patient/patient_prescriptions.dart';
+import 'package:sehatak_flutter/presentation/screens/patient/patient_appointments.dart';
+import 'package:sehatak_flutter/presentation/screens/vaccination/vaccination_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/medical_reports/medical_reports_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/health_tools/bmi_calculator_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/blood_pressure/blood_pressure_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/glucose_tracker/glucose_tracker_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/subscriptions/subscriptions_screen.dart';
 
 class PatientDashboard extends StatelessWidget {
   const PatientDashboard({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/presentation/screens/lab/labs_list_screen.dart';
-import 'package:sehatak/presentation/screens/medical_reports/medical_reports_screen.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/presentation/screens/lab/labs_list_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/medical_reports/medical_reports_screen.dart';
 
 class PatientMedicalHistory extends StatefulWidget {
   const PatientMedicalHistory({super.key});

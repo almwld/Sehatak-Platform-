@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
 class FirstAidScreen extends StatelessWidget {
   const FirstAidScreen({super.key});
   @override

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
 
 class PatientProfile extends StatefulWidget {
   const PatientProfile({super.key});
