@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import '../payment/subscription_payment_screen.dart';  // ✅ المسار الصحيح
+import '../payment/subscription_payment_screen.dart';
 
 class SubscriptionsScreen extends StatefulWidget {
   const SubscriptionsScreen({super.key});
