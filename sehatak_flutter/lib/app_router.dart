@@ -33,6 +33,7 @@ import 'presentation/screens/shared/notifications_screen.dart';
 import 'presentation/screens/shared/search_screen.dart';
 
 class AppRouter {
+  static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
@@ -68,6 +69,8 @@ class AppRouter {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case splash:
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
       case login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case register:
