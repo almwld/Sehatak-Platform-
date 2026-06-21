@@ -19,6 +19,7 @@ class AppColors {
   static const Color lightGrey = Color(0xFFE2E8F0);
   static const Color grey = Color(0xFF94A3B8);
   static const Color outlineVariant = Color(0xFFCBD5E1);
+  static const Color white70 = Colors.white70;
   
   // حالات
   static const Color error = Color(0xFFEF4444);
@@ -34,4 +35,15 @@ class AppColors {
   static const Color amber = Color(0xFFF59E0B);
   static const Color pink = Color(0xFFEC4899);
   static const Color shadow = Color(0xFF000000);
+
+  // ✅ التدرجات المطلوبة
+  static const List<Color> primaryGradient = [
+    Color(0xFF00796B),
+    Color(0xFF004D40),
+  ];
+  
+  static const List<Color> secondaryGradient = [
+    Color(0xFF26A69A),
+    Color(0xFF004D40),
+  ];
 }
