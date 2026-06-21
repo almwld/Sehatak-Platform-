@@ -20,7 +20,8 @@ class _SplashScreenState extends State<SplashScreen> {
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           final authState = context.read<AuthBloc>().state;
-          if (authState is AuthAuthenticated) {
+          // ✅ إصلاح: استخدام Authenticated بدلاً من AuthAuthenticated
+          if (authState is Authenticated) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -66,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 'تطبيقك الطبي المتكامل',
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppColors.white70,
+                  color: Colors.white70, // ✅ استخدام Colors.white70 بدلاً من AppColors.white70
                 ),
               ),
               SizedBox(height: 40),
