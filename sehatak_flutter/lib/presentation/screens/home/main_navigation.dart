@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import 'home_screen.dart';
-import '../doctor/doctors_list_screen.dart';
+import '../doctor/doctors_list_screen.dart';  // ✅ المسار الصحيح
 import '../patient/patient_appointments.dart';
 import '../patient/patient_dashboard.dart';
 import '../settings/settings_screen.dart';
@@ -91,7 +91,7 @@ class _MainNavigationState extends State<MainNavigation> {
                           color: isSelected ? AppColors.primary : AppColors.grey,
                           size: 24,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           _titles[index],
                           style: TextStyle(
