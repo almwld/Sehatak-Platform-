@@ -21,7 +21,7 @@ class SehatakApp extends StatelessWidget {
             darkTheme: ThemeManager.darkTheme,
             themeMode: state is ThemeDark ? ThemeMode.dark : ThemeMode.light,
             debugShowCheckedModeBanner: false,
-            home: const LoginScreen(),
+            home: const LoginScreen(),  // ✅ هنا الوجهة النهائية
           );
         },
       ),
