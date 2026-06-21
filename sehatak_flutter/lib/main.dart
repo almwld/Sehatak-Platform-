@@ -7,7 +7,7 @@ import 'core/services/firebase_service.dart';
 import 'core/themes/theme_manager.dart';
 import 'presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'presentation/bloc/theme_bloc/theme_bloc.dart';
-import 'presentation/screens/auth/splash_screen.dart';
+import 'presentation/screens/auth/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeManager.lightTheme,
             darkTheme: ThemeManager.darkTheme,
             themeMode: state is ThemeLoadedState ? state.themeMode : ThemeMode.light,
-            home: const SplashScreen(),
+            home: const LoginScreen(), // ✅ مباشرة إلى Login
           );
         },
       ),

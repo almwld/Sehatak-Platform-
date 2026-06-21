@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (a) { final t = await _bio.getAvailableTypes(); setState(() { _hasBiometric = true; _bioName = _bio.getBiometricName(t); }); }
   }
 
-  void _guest() => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomeScreen()), (r) => false);
+  void _guest() => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainNavigation()), (r) => false);
 
   void _login() {
     if (_email.text.isEmpty || _pass.text.isEmpty) { _showMsg('املأ الحقول', true); return; }
@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (ctx, s) {
         if (s is Authenticated) {
-          Navigator.of(ctx).pushAndRemoveUntil(PageRouteBuilder(pageBuilder: (_, __, ___) => const HomeScreen(), transitionsBuilder: (_, a, __, ch) => FadeTransition(opacity: a, child: ch), transitionDuration: const Duration(milliseconds: 400)), (r) => false);
+          Navigator.of(ctx).pushAndRemoveUntil(PageRouteBuilder(pageBuilder: (_, __, ___) => const MainNavigation(), transitionsBuilder: (_, a, __, ch) => FadeTransition(opacity: a, child: ch), transitionDuration: const Duration(milliseconds: 400)), (r) => false);
         }
         if (s is AuthError) _showMsg(s.message, true);
       },
