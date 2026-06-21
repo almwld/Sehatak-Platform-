@@ -1,57 +1,134 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../bloc/auth_bloc/auth_bloc.dart';
+import 'login_screen.dart';
+import 'home_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phone;
   const OtpVerificationScreen({super.key, required this.phone});
+
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final List<TextEditingController> _ctrls = List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _fns = List.generate(6, (_) => FocusNode());
-  int _timer = 60;
-  Timer? _countdown;
+  final TextEditingController _otpController = TextEditingController();
+  String _verificationId = '';
 
   @override
-  void initState() {
-    super.initState();
-    _countdown = Timer.periodic(const Duration(seconds: 1), (t) { if (_timer > 0) { setState(() => _timer--); } else { t.cancel(); } });
-  }
-
-  void _verify() {
-    final otp = _ctrls.map((c) => c.text).join();
-    if (otp.length == 6) {
-      Navigator.pushReplacementNamed(context, '/home');
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final state = context.read<AuthBloc>().state;
+    if (state is AuthCodeSent) {
+      _verificationId = state.verificationId;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('رمز التحقق')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          SizedBox(height: 40),
-          const Icon(Icons.verified_user, size: 80, color: AppColors.primary),
-          SizedBox(height: 24),
-          const Text('أدخل رمز التحقق', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
-          Text('تم إرسال رمز إلى ${widget.phone}', style: const TextStyle(color: AppColors.grey, fontSize: 14)),
-          SizedBox(height: 32),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(6, (i) => SizedBox(width: 48, height: 56, child: TextField(controller: _ctrls[i], focusNode: _fns[i], textAlign: TextAlign.center, keyboardType: TextInputType.number, maxLength: 1, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold), decoration: InputDecoration(counterText: '', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))), onChanged: (v) { if (v.isNotEmpty && i < 5) _fns[i+1].requestFocus(); if (i == 5 && v.isNotEmpty) _verify(); })))),
-          SizedBox(height: 32),
-          SizedBox(width: double.infinity, height: 52, child: ElevatedButton(onPressed: _verify, style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))), child: const Text('تحقق', style: TextStyle(fontSize: 17)))),
-          SizedBox(height: 16),
-          TextButton(onPressed: _timer == 0 ? () => setState(() { _timer = 60; _countdown = Timer.periodic(const Duration(seconds: 1), (t) { if (_timer > 0) { setState(() => _timer--); } else { t.cancel(); } }); }) : null, child: Text(_timer > 0 ? 'إعادة الإرسال (${_timer}ث)' : 'إعادة الإرسال', style: TextStyle(color: _timer == 0 ? AppColors.primary : AppColors.grey))),
-        ]),
+      appBar: AppBar(
+        title: const Text('تأكيد رقم الهاتف'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+      ),
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is Authenticated) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          }
+          if (state is AuthError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
+            );
+          }
+          if (state is AuthPhoneVerified) {
+            if (state.isNewUser) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const RegisterScreen()),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              );
+            }
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state is AuthLoading;
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                const Text(
+                  'أدخل رمز التحقق',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'تم إرسال رمز إلى ${widget.phone}',
+                  style: const TextStyle(color: AppColors.darkGrey),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _otpController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  maxLength: 6,
+                  decoration: const InputDecoration(
+                    labelText: 'رمز التحقق',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : () {
+                      if (_otpController.text.length == 6) {
+                        context.read<AuthBloc>().add(
+                          VerifyOTPRequested(
+                            verificationId: _verificationId,
+                            otp: _otpController.text,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('يرجى إدخال 6 أرقام')),
+                        );
+                      }
+                    },
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: AppColors.white)
+                        : const Text('تأكيد'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton(
+                    onPressed: isLoading ? null : () {
+                      context.read<AuthBloc>().add(
+                        ResendOTPRequested(widget.phone),
+                      );
+                    },
+                    child: const Text('إعادة إرسال الرمز'),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
-
-  @override
-  void dispose() { for (var c in _ctrls) c.dispose(); for (var f in _fns) f.dispose(); _countdown?.cancel(); super.dispose(); }
 }
