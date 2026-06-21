@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sehatak/core/constants/app_colors.dart';
-import 'package:sehatak/core/services/biometric_service.dart';
-import 'package:sehatak/presentation/bloc/auth_bloc/auth_bloc.dart';
-import 'package:sehatak/presentation/screens/home/home_screen.dart';
-import 'package:sehatak/presentation/screens/terms/terms_screen.dart';
-import 'package:sehatak/presentation/screens/privacy/privacy_screen.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/services/biometric_service.dart';
+import 'package:sehatak_flutter/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:sehatak_flutter/presentation/screens/home/home_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/terms/terms_screen.dart';
+import 'package:sehatak_flutter/presentation/screens/privacy/privacy_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _regConfirm = TextEditingController();
   final _specialization = TextEditingController();
   final _licenseNumber = TextEditingController();
-  
+
   bool _obscure = true, _obscure2 = true, _agree = false, _rememberMe = true;
   final BiometricService _bio = BiometricService();
   bool _hasBiometric = false;
@@ -44,12 +44,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   void _guest() => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomeScreen()), (r) => false);
-  
+
   void _login() {
     if (_email.text.isEmpty || _pass.text.isEmpty) { _showMsg('املأ الحقول', true); return; }
     context.read<AuthBloc>().add(LoginWithEmail(email: _email.text.trim(), password: _pass.text.trim(), rememberMe: _rememberMe));
   }
-  
+
   void _register() {
     if (!_agree) { _showMsg('وافق على الشروط', true); return; }
     if (_regPass.text != _regConfirm.text) { _showMsg('كلمتا المرور غير متطابقتين', true); return; }
@@ -100,7 +100,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     SizedBox(height: 10),
                     TextField(controller: _pass, obscureText: _obscure, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'كلمة المرور', prefixIcon: const Icon(Icons.lock_outline, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10))),
                     SizedBox(height: 4),
-                    // نسيت كلمة المرور + تذكرني
                     Row(children: [
                       Row(children: [
                         SizedBox(width: 20, height: 20, child: Checkbox(value: _rememberMe, activeColor: AppColors.primary, onChanged: (v) => setState(() => _rememberMe = v!), materialTapTargetSize: MaterialTapTargetSize.shrinkWrap)),
@@ -117,7 +116,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   ])),
                   // ========== تبويب إنشاء حساب ==========
                   Padding(padding: const EdgeInsets.all(16), child: Column(children: [
-                    // اختيار نوع الحساب
                     Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.05), borderRadius: BorderRadius.circular(12)), child: Row(children: [
                       Expanded(child: GestureDetector(onTap: () => setState(() => _accountType = 'patient'), child: Container(padding: const EdgeInsets.symmetric(vertical: 8), decoration: BoxDecoration(color: _accountType == 'patient' ? AppColors.primary : Colors.transparent, borderRadius: BorderRadius.circular(10)), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.person, color: _accountType == 'patient' ? Colors.white : AppColors.darkGrey, size: 18), SizedBox(width: 4), Text('مريض', style: TextStyle(color: _accountType == 'patient' ? Colors.white : AppColors.darkGrey, fontWeight: FontWeight.bold, fontSize: 13))])))),
                       Expanded(child: GestureDetector(onTap: () => setState(() => _accountType = 'doctor'), child: Container(padding: const EdgeInsets.symmetric(vertical: 8), decoration: BoxDecoration(color: _accountType == 'doctor' ? AppColors.primary : Colors.transparent, borderRadius: BorderRadius.circular(10)), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.medical_services, color: _accountType == 'doctor' ? Colors.white : AppColors.darkGrey, size: 18), SizedBox(width: 4), Text('طبيب', style: TextStyle(color: _accountType == 'doctor' ? Colors.white : AppColors.darkGrey, fontWeight: FontWeight.bold, fontSize: 13))])))),
@@ -128,7 +126,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     TextField(controller: _regEmail, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'البريد الإلكتروني', prefixIcon: const Icon(Icons.email_outlined, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10))),
                     SizedBox(height: 8),
                     TextField(controller: _regPhone, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'رقم الهاتف', prefixIcon: const Icon(Icons.phone_android, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10))),
-                    // حقول الطبيب
                     if (_accountType == 'doctor') ...[
                       SizedBox(height: 8),
                       TextField(controller: _specialization, textAlign: TextAlign.right, decoration: InputDecoration(labelText: 'التخصص الطبي', hintText: 'مثال: باطنية، أطفال...', prefixIcon: const Icon(Icons.medical_services, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10))),
