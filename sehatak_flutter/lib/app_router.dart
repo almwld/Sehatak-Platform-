@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'presentation/screens/auth/splash_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/register_screen.dart';
 import 'presentation/screens/auth/forgot_password_screen.dart';
@@ -31,6 +32,8 @@ import 'presentation/screens/settings/settings_screen.dart';
 import 'presentation/screens/reports/reports_dashboard.dart';
 import 'presentation/screens/shared/notifications_screen.dart';
 import 'presentation/screens/shared/search_screen.dart';
+import 'presentation/screens/more/more_screen.dart';
+import 'presentation/screens/chat/chat_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -66,6 +69,8 @@ class AppRouter {
   static const String reports = '/reports';
   static const String notifications = '/notifications';
   static const String search = '/search';
+  static const String more = '/more';
+  static const String chat = '/chat';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -142,6 +147,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const NotificationsScreen());
       case search:
         return MaterialPageRoute(builder: (_) => const SearchScreen());
+      case more:
+        return MaterialPageRoute(builder: (_) => const MoreScreen());
+      case chat:
+        return MaterialPageRoute(builder: (_) => const ChatScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
