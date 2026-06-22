@@ -40,7 +40,6 @@ class _HealthShopScreenState extends State<HealthShopScreen> {
               spacing: 8,
               runSpacing: 8,
               children: _categories.asMap().entries.map((e) {
-                final idx = e.key;
                 final label = e.value;
                 return ChoiceChip(
                   label: Text(label, style: const TextStyle(fontSize: 10)),

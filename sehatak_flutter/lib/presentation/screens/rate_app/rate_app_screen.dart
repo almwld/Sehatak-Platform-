@@ -1,104 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import '../../../core/constants/app_colors.dart';
 
 class RateAppScreen extends StatefulWidget {
   const RateAppScreen({super.key});
+
   @override
   State<RateAppScreen> createState() => _RateAppScreenState();
 }
 
 class _RateAppScreenState extends State<RateAppScreen> {
   int _rating = 0;
-  bool _wouldRecommend = true;
-  final TextEditingController _feedbackController = TextEditingController();
-  List<String> _selectedTags = [];
-
-  final List<String> _tags = ['سهل الاستخدام', 'مفيد', 'تصميم جميل', 'سريع', 'منظم', 'ممتاز', 'يحتاج تحسين'];
+  String _feedback = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('تقييم التطبيق', style: TextStyle(fontWeight: FontWeight.bold))),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(14),
-        child: Column(children: [
-          SizedBox(height: 10),
-          const Icon(Icons.star, size: 70, color: AppColors.amber),
-          SizedBox(height: 16),
-          const Text('ما رأيك في منصة صحتك؟', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const Text('تقييمك يساعدنا في التحسين', style: TextStyle(color: AppColors.grey, fontSize: 13)),
-          SizedBox(height: 24),
-
-          // النجوم
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(5, (i) => GestureDetector(
-            onTap: () => setState(() => _rating = i + 1),
-            child: Icon(i < _rating ? Icons.star : Icons.star_border, color: AppColors.amber, size: 48),
-          ))),
-          if (_rating > 0) ...[
-            SizedBox(height: 6),
-            Text(_ratingText, style: TextStyle(fontWeight: FontWeight.bold, color: _rating >= 4 ? AppColors.success : _rating >= 3 ? AppColors.warning : AppColors.error)),
-          ],
-          SizedBox(height: 24),
-
-          // هل توصي؟
-          Text('هل توصي أصدقاءك بالتطبيق؟', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
-          Row(children: [
-            _recommendButton('نعم 👍', true),
-            SizedBox(width: 10),
-            _recommendButton('لا 👎', false),
-          ]),
-          SizedBox(height: 16),
-
-          // وسوم
-          Text('أضف وصفاً', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
-          Wrap(spacing: 6, runSpacing: 6, children: _tags.map((t) => FilterChip(
-            label: Text(t, style: const TextStyle(fontSize: 11)),
-            selected: _selectedTags.contains(t),
-            selectedColor: AppColors.primary.withOpacity(0.2),
-            checkmarkColor: AppColors.primary,
-            onSelected: (v) => setState(() => v ? _selectedTags.add(t) : _selectedTags.remove(t)),
-          )).toList()),
-          SizedBox(height: 14),
-
-          // ملاحظات
-          TextField(
-            controller: _feedbackController,
-            maxLines: 3,
-            textAlign: TextAlign.right,
-            decoration: InputDecoration(
-              hintText: 'أخبرنا المزيد عن تجربتك...',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              filled: true,
-              fillColor: AppColors.surfaceContainerLow.withOpacity(0.3),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('شكراً لتقييمك! 🤍'), backgroundColor: AppColors.success)); }, style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(vertical: 14)), child: const Text('إرسال التقييم', style: TextStyle(fontSize: 16)))),
-        ]),
+      appBar: AppBar(
+        title: const Text('تقييم التطبيق'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
       ),
-    );
-  }
-
-  String get _ratingText {
-    switch (_rating) {
-      case 1: return 'سيء جداً 😞';
-      case 2: return 'سيء 😐';
-      case 3: return 'متوسط 🙂';
-      case 4: return 'جيد 😊';
-      case 5: return 'ممتاز 🤩';
-      default: return '';
-    }
-  }
-
-  Widget _recommendButton(String label, bool value) {
-    final selected = _wouldRecommend == value;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _wouldRecommend = value),
-        child: Container(padding: const EdgeInsets.symmetric(vertical: 14), decoration: BoxDecoration(color: selected ? AppColors.primary.withOpacity(0.08) : Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: selected ? AppColors.primary : AppColors.outlineVariant, width: selected ? 2 : 1)), child: Text(label, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: selected ? AppColors.primary : AppColors.darkGrey))),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const Icon(Icons.star_border, size: 80, color: AppColors.primary),
+            const SizedBox(height: 16),
+            const Text(
+              'ما رأيك في تطبيق صحتك؟',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'ساعدنا في تحسين التطبيق بتقييمك',
+              style: TextStyle(fontSize: 14, color: AppColors.grey),
+            ),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (index) {
+                final starIndex = index + 1;
+                return IconButton(
+                  icon: Icon(
+                    starIndex <= _rating ? Icons.star : Icons.star_border,
+                    color: starIndex <= _rating ? AppColors.amber : AppColors.grey,
+                    size: 40,
+                  ),
+                  onPressed: () => setState(() => _rating = starIndex),
+                );
+              }),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _rating > 0 ? 'شكراً لك على تقييمك!' : 'اختر عدد النجوم',
+              style: TextStyle(
+                fontSize: 16,
+                color: _rating > 0 ? AppColors.success : AppColors.grey,
+              ),
+            ),
+            const SizedBox(height: 30),
+            TextField(
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText: 'أضف تعليقك...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
+              ),
+              onChanged: (value) => _feedback = value,
+            ),
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _rating > 0
+                    ? () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('شكراً لك على تقييمك!'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                        Navigator.pop(context);
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('إرسال التقييم'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

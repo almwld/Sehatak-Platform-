@@ -39,11 +39,27 @@ class ShareAppScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            _shareOption(context, 'مشاركة عبر', Icons.share, AppColors.primary, () {
-              Share.share('حمل تطبيق صحتك - منصة الرعاية الصحية اليمنية الشاملة');
-            }),
+            _shareOption(
+              context,
+              'مشاركة عبر الوسائط',
+              Icons.share,
+              AppColors.primary,
+              () {
+                Share.share('حمل تطبيق صحتك - منصة الرعاية الصحية اليمنية الشاملة');
+              },
+            ),
             const SizedBox(height: 16),
-            _shareOption('رمز QR', Icons.qr_code, AppColors.dark, () {}),
+            _shareOption(
+              context,
+              'رمز QR',
+              Icons.qr_code,
+              AppColors.dark,
+              () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('سيتم عرض رمز QR قريباً')),
+                );
+              },
+            ),
           ],
         ),
       ),

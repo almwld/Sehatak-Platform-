@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:sehatak/core/constants/api_endpoints.dart';
-import 'package:sehatak/core/constants/app_config.dart';
+import 'package:sehatak_flutter/core/constants/api_endpoints.dart';
+import 'package:sehatak_flutter/core/constants/app_config.dart';
 
 class ApiClient {
   late Dio _dio;
