@@ -1,296 +1,117 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import '../../../core/services/chat_service.dart';
+import '../../../core/constants/app_colors.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String doctorId;
-  final String doctorName;
-
-  const ChatScreen({
-    Key? key,
-    required this.doctorId,
-    required this.doctorName,
-  }) : super(key: key);
+  const ChatScreen({super.key});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _messageController = TextEditingController();
-  final ChatService _chatService = ChatService();
-  final ScrollController _scrollController = ScrollController();
-  late String _chatId;
-
-  @override
-  void initState() {
-    super.initState();
-    final userId = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
-    _chatId = _chatService.getChatId(userId, widget.doctorId);
-    _ensureChatExists();
-  }
-
-  Future<void> _ensureChatExists() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
-    final chatDoc = await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(_chatId)
-        .get();
-
-    if (!chatDoc.exists) {
-      await FirebaseFirestore.instance.collection('chats').doc(_chatId).set({
-        'id': _chatId,
-        'participants': [userId, widget.doctorId],
-        'createdAt': FieldValue.serverTimestamp(),
-        'lastMessage': '',
-        'lastMessageTime': FieldValue.serverTimestamp(),
-        'lastMessageSender': '',
-      });
-    }
-  }
+  final List<Map<String, dynamic>> _messages = [
+    {'text': 'مرحباً، كيف يمكنني مساعدتك؟', 'isMe': false, 'time': DateTime.now().subtract(const Duration(minutes: 5))},
+    {'text': 'أريد حجز موعد مع د. علي', 'isMe': true, 'time': DateTime.now().subtract(const Duration(minutes: 3))},
+    {'text': 'سأحجز لك موعداً الآن', 'isMe': false, 'time': DateTime.now().subtract(const Duration(minutes: 1))},
+  ];
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.green[100],
-              child: Text(
-                widget.doctorName[0].toUpperCase(),
-                style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.doctorName,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    'متصل الآن',
-                    style: TextStyle(fontSize: 12, color: Colors.green),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
+        title: const Text('الدردشة'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-              ),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _chatService.getChatMessages(_chatId),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text('حدث خطأ: ${snapshot.error}'));
-                  }
-
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  final messages = snapshot.data!.docs;
-                  if (messages.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.chat_bubble_outline, size: 60, color: Colors.grey[300]),
-                          const SizedBox(height: 16),
-                          Text(
-                            'ابدأ المحادثة مع ${widget.doctorName}',
-                            style: TextStyle(color: Colors.grey[600]),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                final msg = _messages[index];
+                return Align(
+                  alignment: msg['isMe'] ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: msg['isMe'] ? AppColors.primary : Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          msg['text'],
+                          style: TextStyle(
+                            color: msg['isMe'] ? Colors.white : Colors.black,
                           ),
-                        ],
+                        ),
+                        Text(
+                          DateFormat('hh:mm a').format(msg['time']),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: msg['isMe'] ? Colors.white70 : Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      hintText: 'اكتب رسالتك...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                    itemCount: messages.length,
-                    reverse: true,
-                    itemBuilder: (context, index) {
-                      final message = messages[messages.length - 1 - index];
-                      final data = message.data() as Map<String, dynamic>;
-                      return _buildMessageBubble(data);
-                    },
-                  );
-                },
-              ),
-            ),
-          ),
-          _buildMessageInput(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(Map<String, dynamic> message) {
-    final userId = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
-    final isMe = message['senderId'] == userId;
-    final content = message['content'] ?? '';
-    final time = (message['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          if (!isMe) ...[
-            CircleAvatar(
-              radius: 14,
-              backgroundColor: Colors.green[100],
-              child: Text(
-                widget.doctorName[0].toUpperCase(),
-                style: const TextStyle(color: Colors.green, fontSize: 10),
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: isMe ? Colors.green[400] : Colors.white,
-                borderRadius: BorderRadius.circular(16).copyWith(
-                  bottomLeft: isMe ? const Radius.circular(16) : const Radius.circular(4),
-                  bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(16),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    content,
-                    style: TextStyle(
-                      color: isMe ? Colors.white : Colors.black,
-                      fontSize: 15,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('hh:mm a').format(time),
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: isMe ? Colors.white70 : Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (isMe) const SizedBox(width: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMessageInput() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: TextField(
-                controller: _messageController,
-                decoration: const InputDecoration(
-                  hintText: 'اكتب رسالتك...',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.grey),
                 ),
-                textDirection: TextDirection.rtl,
-                onSubmitted: (_) => _sendMessage(),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: _sendMessage,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.send,
-                color: Colors.white,
-                size: 20,
-              ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.send, color: AppColors.primary),
+                  onPressed: () {
+                    if (_controller.text.isNotEmpty) {
+                      setState(() {
+                        _messages.add({
+                          'text': _controller.text,
+                          'isMe': true,
+                          'time': DateTime.now(),
+                        });
+                        _controller.clear();
+                      });
+                    }
+                  },
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
-  }
-
-  void _sendMessage() {
-    final content = _messageController.text.trim();
-    if (content.isEmpty) return;
-
-    _chatService.sendTextMessage(
-      chatId: _chatId,
-      content: content,
-    );
-    _messageController.clear();
-    _scrollToBottom();
-  }
-
-  void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
   }
 }

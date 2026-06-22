@@ -1,48 +1,49 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // الألوان الأساسية
-  static const Color primary = Color(0xFF2E7D32);
-  static const Color primaryDark = Color(0xFF1B5E20);
-  static const Color primaryLight = Color(0xFF4CAF50);
-  static const Color secondary = Color(0xFF0288D1);
-  static const Color secondaryDark = Color(0xFF01579B);
-  static const Color secondaryLight = Color(0xFF03A9F4);
+  // الأساسية
+  static const Color primary = Color(0xFF00796B);
+  static const Color primaryDark = Color(0xFF004D40);
+  static const Color secondary = Color(0xFF26A69A);
+  static const Color accent = Color(0xFF80CBC4);
+  
+  // الخلفيات
+  static const Color background = Color(0xFFF8FAFB);
+  static const Color dark = Color(0xFF121212);
+  static const Color surfaceContainerLow = Color(0xFFF1F5F9);
+  static const Color surfaceContainerHighest = Color(0xFFE2E8F0);
+  
+  // ألوان النص
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color darkGrey = Color(0xFF475569);
+  static const Color lightGrey = Color(0xFFE2E8F0);
+  static const Color grey = Color(0xFF94A3B8);
+  static const Color outlineVariant = Color(0xFFCBD5E1);
+  static const Color white70 = Colors.white70;
+  
+  // حالات
+  static const Color error = Color(0xFFEF4444);
+  static const Color success = Color(0xFF10B981);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color info = Color(0xFF3B82F6);
+  
+  // ألوان متنوعة
+  static const Color teal = Color(0xFF14B8A6);
+  static const Color purple = Color(0xFF8B5CF6);
+  static const Color orange = Color(0xFFF97316);
+  static const Color indigo = Color(0xFF6366F1);
+  static const Color amber = Color(0xFFFFC107);
+  static const Color pink = Color(0xFFEC4899);
+  static const Color shadow = Color(0xFF000000);
 
-  // الألوان المحايدة
-  static const Color white = Colors.white;
-  static const Color black = Colors.black;
-  static const Color grey = Colors.grey;
-  static const Color darkGrey = Color(0xFF424242);
-  static const Color lightGrey = Color(0xFFBDBDBD);
-  static const Color surfaceContainerLow = Color(0xFFF5F5F5);
-
-  // ألوان الحالة
-  static const Color success = Color(0xFF388E3C);
-  static const Color error = Color(0xFFD32F2F);
-  static const Color warning = Color(0xFFF57C00);
-  static const Color info = Color(0xFF1976D2);
-
-  // ألوان التدرج
+  // التدرجات
   static const List<Color> primaryGradient = [
-    Color(0xFF2E7D32),
-    Color(0xFF1B5E20),
+    Color(0xFF00796B),
+    Color(0xFF004D40),
   ];
+  
   static const List<Color> secondaryGradient = [
-    Color(0xFF0288D1),
-    Color(0xFF01579B),
+    Color(0xFF26A69A),
+    Color(0xFF004D40),
   ];
-
-  // ألوان الخلفية
-  static const Color backgroundLight = Color(0xFFFAFAFA);
-  static const Color backgroundDark = Color(0xFF121212);
-
-  // ألوان البطاقات
-  static const Color cardLight = Colors.white;
-  static const Color cardDark = Color(0xFF1E1E1E);
-
-  // ألوان النصوص
-  static const Color textLight = Color(0xFF1A1A1A);
-  static const Color textDark = Color(0xFFE0E0E0);
-  static const Color textHint = Color(0xFF757575);
 }
