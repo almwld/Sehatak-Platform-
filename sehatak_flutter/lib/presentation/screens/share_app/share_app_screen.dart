@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../../core/constants/app_colors.dart';
 
 class ShareAppScreen extends StatelessWidget {
   const ShareAppScreen({super.key});
@@ -7,66 +8,71 @@ class ShareAppScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('مشاركة التطبيق', style: TextStyle(fontWeight: FontWeight.bold))),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(14),
-        child: Column(children: [
-          SizedBox(height: 20),
-          const Icon(Icons.share, size: 80, color: AppColors.primary),
-          SizedBox(height: 16),
-          const Text('شارك صحتك مع أحبابك', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          SizedBox(height: 4),
-          const Text('ساعد الآخرين في العناية بصحتهم', style: TextStyle(color: AppColors.grey, fontSize: 13)),
-          SizedBox(height: 30),
-
-          // طرق المشاركة
-          Text('اختر طريقة المشاركة', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-          SizedBox(height: 12),
-          GridView.count(crossAxisCount: 3, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.95,
-            children: [
-              _shareOption('واتساب', Icons.chat, const Color(0xFF25D366)),
-              _shareOption('فيسبوك', Icons.facebook, const Color(0xFF1877F2)),
-              _shareOption('تويتر', Icons.alternate_email, const Color(0xFF1DA1F2)),
-              _shareOption('تليجرام', Icons.telegram, const Color(0xFF0088cc)),
-              _shareOption('رسائل', Icons.message, AppColors.primary),
-              _shareOption('نسخ الرابط', Icons.link, AppColors.success),
-              _shareOption('بريد', Icons.email, AppColors.warning),
-              _shareOption('المزيد', Icons.more_horiz, AppColors.grey),
-              _shareOption('QR Code', Icons.qr_code, AppColors.dark),
-            ],
-          ),
-          SizedBox(height: 24),
-
-          // كود QR
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)]),
-            child: Column(children: [
-              const Text('رمز المشاركة السريع', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-              SizedBox(height: 14),
-              Container(
-                width: 160, height: 160,
-                decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.primary.withOpacity(0.2))),
-                child: const Center(child: Icon(Icons.qr_code_2, size: 120, color: AppColors.primary)),
+      appBar: AppBar(
+        title: const Text('مشاركة التطبيق'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
               ),
-              SizedBox(height: 8),
-              const Text('امسح للتحميل', style: TextStyle(fontSize: 11, color: AppColors.grey)),
-            ]),
-          ),
-          SizedBox(height: 20),
-        ]),
+              child: const Icon(Icons.share, size: 50, color: AppColors.primary),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'شارك تطبيق صحتك مع أصدقائك',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'انشر الوعي الصحي وشارك التطبيق مع من تحب',
+              style: TextStyle(fontSize: 14, color: AppColors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+            _shareOption(context, 'مشاركة عبر', Icons.share, AppColors.primary, () {
+              Share.share('حمل تطبيق صحتك - منصة الرعاية الصحية اليمنية الشاملة');
+            }),
+            const SizedBox(height: 16),
+            _shareOption('رمز QR', Icons.qr_code, AppColors.dark, () {}),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _shareOption(String label, IconData icon, Color color) {
+  Widget _shareOption(BuildContext context, String label, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
-      onTap: () {},
-      child: Column(children: [
-        Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: color.withOpacity(0.08), shape: BoxShape.circle), child: Icon(icon, color: color, size: 28)),
-        SizedBox(height: 6),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500)),
-      ]),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const Spacer(),
+            Icon(Icons.arrow_forward_ios, color: AppColors.grey, size: 16),
+          ],
+        ),
+      ),
     );
   }
 }
