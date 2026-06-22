@@ -37,8 +37,6 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
     });
   }
 
-  int get _totalItems => _cart.fold(0, (sum, item) => sum + (item['qty'] as int));
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,10 +133,10 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
                           height: 100,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                            height: 100,
-                            color: AppColors.lightGrey,
-                            child: const Center(child: CircularProgressIndicator()),
+                          placeholder: (_, __) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(height: 100, color: Colors.white),
                           ),
                           errorWidget: (_, __, ___) => Container(
                             height: 100,
