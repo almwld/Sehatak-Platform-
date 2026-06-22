@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:sehatak_flutter/core/constants/app_colors.dart';
+import 'package:sehatak/core/constants/app_colors.dart';
 
 class PharmacyProductsScreen extends StatefulWidget {
   final String pharmacyId;
@@ -57,8 +57,14 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
                   top: 4,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
-                    child: Text('${_cart.length}', style: const TextStyle(color: Colors.white, fontSize: 10)),
+                    decoration: const BoxDecoration(
+                      color: AppColors.error,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '${_cart.length}',
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                    ),
                   ),
                 ),
             ],
@@ -67,6 +73,7 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
       ),
       body: Column(
         children: [
+          // الفئات
           SizedBox(
             height: 50,
             child: ListView.builder(
@@ -101,6 +108,7 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
             ),
           ),
           const SizedBox(height: 10),
+          // المنتجات
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -142,19 +150,33 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(p['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(
+                              p['name'],
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             Row(
                               children: [
-                                Text(p['type'], style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold)),
+                                Text(
+                                  p['type'],
+                                  style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
                                 const Spacer(),
-                                Text(p['cat'], style: const TextStyle(color: AppColors.grey, fontSize: 10)),
+                                Text(
+                                  p['cat'],
+                                  style: const TextStyle(color: AppColors.grey, fontSize: 10),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('${p['price']} ر.ي', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13)),
+                                Text(
+                                  '${p['price']} ر.ي',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13),
+                                ),
                                 GestureDetector(
                                   onTap: p['inStock'] ? () => _addToCart(p) : null,
                                   child: Container(
