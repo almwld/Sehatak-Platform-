@@ -138,6 +138,7 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
                           placeholder: (_, __) => Container(
                             height: 100,
                             color: AppColors.lightGrey,
+                            child: const Center(child: CircularProgressIndicator()),
                           ),
                           errorWidget: (_, __, ___) => Container(
                             height: 100,
