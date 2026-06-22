@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
 
 class MedicalReportsScreen extends StatefulWidget {
   const MedicalReportsScreen({super.key});
@@ -36,13 +36,8 @@ class _MedicalReportsScreenState extends State<MedicalReportsScreen> {
                 backgroundColor: AppColors.primary.withOpacity(0.1),
                 child: Icon(Icons.medical_services, color: AppColors.primary),
               ),
-              title: Text(
-                r['title'],
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                '${DateFormat('dd/MM/yyyy').format(r['date'])} - ${r['doctor']}',
-              ),
+              title: Text(r['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('${DateFormat('dd/MM/yyyy').format(r['date'])} - ${r['doctor']}'),
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(

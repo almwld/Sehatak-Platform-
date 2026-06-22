@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../core/constants/app_colors.dart';
+import 'package:sehatak_flutter/core/constants/app_colors.dart';
 
 class HealthShopScreen extends StatefulWidget {
   const HealthShopScreen({super.key});
@@ -33,7 +33,6 @@ class _HealthShopScreenState extends State<HealthShopScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // الفئات
           Padding(
             padding: const EdgeInsets.all(12),
             child: Wrap(
@@ -52,7 +51,6 @@ class _HealthShopScreenState extends State<HealthShopScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          // المنتجات
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(12),
@@ -85,9 +83,7 @@ class _HealthShopScreenState extends State<HealthShopScreen> {
                           errorWidget: (_, __, ___) => Container(
                             height: 120,
                             color: AppColors.primary.withOpacity(0.08),
-                            child: const Center(
-                              child: Icon(Icons.medical_services, size: 40, color: AppColors.primary),
-                            ),
+                            child: const Center(child: Icon(Icons.medical_services, size: 40, color: AppColors.primary)),
                           ),
                         ),
                       ),
@@ -96,46 +92,19 @@ class _HealthShopScreenState extends State<HealthShopScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              p['name'],
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              p['brand'],
-                              style: const TextStyle(fontSize: 9, color: AppColors.grey),
-                            ),
+                            Text(p['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(p['brand'], style: const TextStyle(fontSize: 9, color: AppColors.grey)),
                             const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.star, color: AppColors.amber, size: 12),
-                                Text(' ${p['rating']}', style: const TextStyle(fontSize: 10)),
-                              ],
-                            ),
+                            Row(children: [const Icon(Icons.star, color: AppColors.amber, size: 12), Text(' ${p['rating']}', style: const TextStyle(fontSize: 10))]),
                             const SizedBox(height: 6),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  '${p['price']} ر.ي',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                                Text('${p['price']} ر.ي', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 14)),
                                 Container(
                                   padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(
-                                    Icons.add_shopping_cart,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
+                                  decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(8)),
+                                  child: const Icon(Icons.add_shopping_cart, color: Colors.white, size: 16),
                                 ),
                               ],
                             ),
