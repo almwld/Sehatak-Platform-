@@ -7,7 +7,7 @@
         </shape>
     </item>
     <item
-        android:drawable="@drawable/ic_health"
+        android:drawable="@drawable/ic_launcher_foreground"
         android:gravity="center"
         android:width="48dp"
         android:height="48dp"/>
